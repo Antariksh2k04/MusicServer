@@ -6,7 +6,7 @@ Use the debug APK on the CMF Phone 2 Pro (owner reports Android 16). This is the
 
 Commit/push the reviewed native sources and run **Android shell bootstrap** manually using the existing [build guide](android-shell-build.md). The workflow now runs `testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease` and analyzes the built release APK for diagnostic isolation. It returns the debug APK and build report; it does not run connected-device tests. Check that run's actual result before claiming compilation. Install its APK on the phone. Different temporary CI signing certificates may require uninstalling the previous shell; that clears its local state.
 
-For local Android tooling, run `npm --prefix src/web ci`, then `npm --prefix src/web run android:sync`. From `src/web/android`, use `./gradlew.bat testDebugUnitTest assembleDebug assembleRelease`. Do not regenerate the project with `cap add android`.
+For local Android tooling, run `npm --prefix MusicServerFrontend ci`, then `npm --prefix MusicServerFrontend run android:sync`. From `MusicServerFrontend/android`, use `./gradlew.bat testDebugUnitTest assembleDebug assembleRelease`. Do not regenerate the project with `cap add android`.
 
 ## Wireless connection and fixtures
 
@@ -30,7 +30,7 @@ $phoneEndpoint = 'PHONE_IP:CONNECTION_PORT'
 
 If pairing succeeds but connection fails, use the current connection port, not the expired pairing port. If automatic discovery fails, explicit `adb connect` is sufficient when the devices can reach each other. Guest/corporate Wi-Fi may isolate devices; use a shared network that permits the debugging connection. When the endpoint changes or the connection drops, reconnect and recreate the one reverse mapping. Use `-s $phoneEndpoint` for wireless commands; `-d` selects USB devices. If USB is available on another computer, authorize that device and use its serial with `-s` instead.
 
-In another PC terminal, run `npm --prefix src/web run dev`. Open `http://127.0.0.1:5173`, enter the operator key chosen at server startup, and upload owner-provided MP3 fixtures. Use that same key in the Android debug app. Refresh fixtures, select a track, then press Play. Keys are cleared from the input after submission; issued tokens remain native. Restarting the diagnostic server invalidates its temporary library and all sessions.
+In another PC terminal, run `npm --prefix MusicServerFrontend run dev`. Open `http://127.0.0.1:5173`, enter the operator key chosen at server startup, and upload owner-provided MP3 fixtures. Use that same key in the Android debug app. Refresh fixtures, select a track, then press Play. Keys are cleared from the input after submission; issued tokens remain native. Restarting the diagnostic server invalidates its temporary library and all sessions.
 
 Use independently identified CBR, Xing/VBRI indexed VBR, representative unindexed VBR, and a track longer than 15 minutes, each under 50 MiB. Generated HTTP-test frames are not audible-playback fixtures. Keep media/hash inventory privately under `.local/`; commit only redacted results.
 
