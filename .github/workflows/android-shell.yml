@@ -54,26 +54,58 @@ jobs:
           npm --version
           cat "$ANDROID_HOME/platforms/android-36/source.properties"
           cat "$ANDROID_HOME/build-tools/35.0.0/source.properties"
-      - name: Generate official pinned shell and genuine dependency lock
-        run: node scripts/bootstrap-android.cjs
-      - name: Build debug APK
-        working-directory: .local/android-bootstrap/android
+      - name: Restore app and sync assets into the checked-in Android project
+        working-directory: src/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build
+          npm run android:sync
+      - name: Compile both variants and run native unit tests
+        working-directory: src/web/android
         shell: bash
         run: |
           bash ./gradlew --version
-          bash ./gradlew --no-daemon --max-workers=2 assembleDebug
-      - name: Package reviewable bootstrap sources and APK
+          bash ./gradlew --no-daemon --max-workers=2 testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease
+      - name: Verify diagnostic isolation in the built release APK
+        shell: bash
+        run: |
+          apk_analyzer="$(find "$ANDROID_HOME/cmdline-tools" -mindepth 3 -maxdepth 3 -type f -name apkanalyzer -executable -print -quit)"
+          if [ -z "$apk_analyzer" ] || [ ! -x "$apk_analyzer" ]; then
+            echo "::error::Android APK Analyzer not found"
+            exit 1
+          fi
+          mkdir -p .local/android-release-check
+          release_apk=src/web/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          "$apk_analyzer" manifest print "$release_apk" > .local/android-release-check/manifest.xml
+          "$apk_analyzer" dex packages --defined-only "$release_apk" > .local/android-release-check/packages.txt
+          node scripts/check-android-release.cjs .local/android-release-check/manifest.xml .local/android-release-check/packages.txt
+      - name: Package debug APK and build report
         shell: bash
         run: |
           mkdir -p .local/android-artifact
-          cp .local/android-bootstrap/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
+          cp src/web/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug.apk
-          node -e "const fs = require('node:fs'); const p = '.local/android-bootstrap/bootstrap-report.json'; const report = JSON.parse(fs.readFileSync(p, 'utf8')); report.apkBuildVerified = true; fs.writeFileSync(p, JSON.stringify(report, null, 2) + '\n');"
-          tar --exclude=android/.gradle --exclude='*/build' --exclude=android/local.properties \
-            -czf .local/android-artifact/bootstrap-source.tar.gz -C .local/android-bootstrap \
-            android package.json package-lock.json capacitor.config.json bootstrap-report.json
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const report = {
+            commit: process.env.GITHUB_SHA,
+            runId: process.env.GITHUB_RUN_ID,
+            node: process.version,
+            selectedPins: JSON.parse(fs.readFileSync('scripts/android-toolchain.json', 'utf8')),
+            source: 'checked-in Android project',
+            apkBuildVerified: true,
+            releaseIsolationVerified: true,
+            nativeUnitTestsVerified: true,
+            instrumentationCompiled: true,
+            connectedDeviceTestsVerified: false,
+            physicalDeviceVerified: false,
+            backgroundPlaybackVerified: false,
+          };
+          fs.writeFileSync('.local/android-artifact/build-report.json', JSON.stringify(report, null, 2) + '\n');
+          NODE
           cd .local/android-artifact
-          sha256sum music-server-shell-debug.apk bootstrap-source.tar.gz > SHA256SUMS.txt
+          sha256sum music-server-shell-debug.apk build-report.json > SHA256SUMS.txt
           test "$(du -sb . | cut -f1)" -lt 104857600
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

@@ -17,6 +17,7 @@ var diagnosticMode = builder.Environment.IsDevelopment() && diagnostics.Enabled;
 if (diagnosticMode)
 {
     if (diagnostics.OperatorKey.Length is < 32 or > 256 || diagnostics.SessionSeconds is < 1 or > 3600
+        || diagnostics.NativeAccessSeconds is < 1 or > 600
         || diagnostics.StorageByteLimit < 1 || diagnostics.StorageOperationLimit < 1
         || !Uri.TryCreate(diagnostics.BrowserOrigin, UriKind.Absolute, out var origin)
         || !origin.IsLoopback || origin.Scheme != "http")
@@ -26,6 +27,7 @@ if (diagnosticMode)
     builder.Services.AddSingleton(diagnostics);
     builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<DiagnosticSessions>();
+    builder.Services.AddSingleton<DiagnosticNativeSessions>();
     builder.Services.AddSingleton<IObjectStore>(services => new LocalFileObjectStore(
         services.GetRequiredService<IHostEnvironment>(), new LocalObjectStoreOptions
         {

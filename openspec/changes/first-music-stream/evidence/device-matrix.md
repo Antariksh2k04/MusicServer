@@ -19,6 +19,8 @@ Checked 2026-10-08 after the account/origin prerequisite reviews. **Outcome: par
 
 ## Collection once tooling/phone are available
 
+Later owner confirmation: the debug empty shell from run `37897504459` installs and opens on the CMF Phone 2 Pro. Its artifact/source provenance is recorded in [shell evidence](android-shell-bootstrap.md). Exact Android/Nothing OS/build, normal battery settings, USB access, and accessory/call tests remain unrecorded; no native audio service or background result is implied.
+
 Use official Android platform tools and the owner's trusted computer/USB pairing. The [Android adb guide](https://developer.android.com/tools/adb) describes debugging authorization and selecting a hardware device. Do not commit serials, account identifiers, call details, or signing keys. Inspect device presence locally; do not paste `adb devices` output into committed evidence.
 
 With exactly one authorized hardware device, these read-only commands can capture noncredential build fields:
@@ -36,5 +38,7 @@ Confirm the marketed phone model and exact Nothing OS version in Settings → Ab
 The eventual background experiment must use the installed native player on this real phone. Browser versions, generated MP3 bytes, emulator output, or a successful adb connection do not establish playback, seeking, lock-screen controls, or background renewal. Refer to the active `audio-playback` scenarios, local task 2.9, and final cloud task 8.3 (previously 2.5) instead of duplicating acceptance requirements here.
 
 ## Review
+
+On 2026-10-09 the owner confirmed **Android 16** on the CMF Phone 2 Pro. This is an owner-reported major version, not an adb observation. Exact Nothing OS/build/security patch, battery configuration, USB authorization, and accessory/call evidence remain pending. Task 1.3 stays unchecked.
 
 Self-review confirmed installed versions are labeled observations, stable channels are unverified, phone data is not fabricated, and no developer-option/battery/accessory action was performed. The inventory tool also skips network SDK paths. The remaining physical records require the owner's device; task 1.3 cannot pass during this unattended run.

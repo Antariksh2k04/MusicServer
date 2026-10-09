@@ -5,6 +5,8 @@
 The local experiment lives alongside project context: `spec.md`, `FRS.md`, `SDS-FE.md`, `SDS-BE.md`, and `implementation_plan.md`. Production integrations remain pending; `plan.md` is absent.
 
 - `src/web/`: Ionic React UI, browser audio controller, and Vitest tests beside source.
+- `src/web/android/`: reviewed Capacitor Android project; generated assets/build outputs are ignored.
+- `src/web/android/app/src/debug/`: local Media3 service/broker/plugin and loopback network allowance; excluded from release.
 - `src/server/MusicServer/`: ASP.NET Core diagnostics, bounded streaming, and provider contracts/adapters under `Storage/`.
 - `tests/server/MusicServer.Tests/`: xUnit HTTP integration and cancellation tests.
 - `scripts/dev-server.ps1`: explicitly configured loopback startup; `.local/` holds ignored temporary media.
@@ -32,6 +34,8 @@ Run from the root; see `README.md` for prerequisites:
 - `node --test tests/scripts/prerequisites.test.cjs`: read-only prerequisite tool contracts.
 - `./scripts/check-android-toolchain.ps1` / `node --test tests/scripts/android-toolchain.test.cjs`: native tool inventory/contracts; no APK build or phone verification.
 - `npm --prefix src/web run build:native-shell` / `node --test tests/scripts/android-bootstrap.test.cjs`: isolated shell assets/bootstrap contracts; no native playback evidence.
+- `npm --prefix src/web run android:sync`: build shell assets and sync the existing native project; never regenerate it with `cap add`.
+- From `src/web/android`, `./gradlew.bat testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease`: compile native variants/tests with installed tooling. Physical checks follow `docs/android-local-playback.md`.
 - `./scripts/dev-server.ps1` and `npm --prefix src/web run dev`: start backend and frontend in separate terminals.
 
 No lint command is configured. Never report unexecuted checks as passed.
@@ -46,7 +50,7 @@ Use Vitest and xUnit; no coverage percentage is required. Name tests by behavior
 
 ## Commit & Pull Request Guidelines
 
-No Git history exists. Use imperative subjects, such as `Document browser streaming flow`. PRs describe behavior, requirement IDs, validation, and limitations; link issues and include UI screenshots when applicable.
+Use imperative commit subjects, such as `Fix Android SDK manager discovery`. PRs describe behavior, requirement IDs, validation, and limitations; link issues and include UI screenshots when applicable.
 
 ## Security & Scope
 

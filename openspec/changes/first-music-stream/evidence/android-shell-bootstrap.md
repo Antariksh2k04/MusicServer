@@ -34,3 +34,38 @@ The owner reported the first hosted attempt failed at `sdkmanager --install` wit
 `node --test tests/scripts/android-sdk-workflow.test.cjs tests/scripts/android-bootstrap.test.cjs` passed all 7 checks. The four new checks execute the actual workflow Bash block with an isolated fake SDK, rejecting unqualified PATH lookup. They cover latest/versioned tools, paths containing spaces, missing tools, and installer failure. Git Bash was used locally; fixtures establish discovery/error handling, not actual Android package installation. Workflow YAML parsing, `git diff --check`, and strict OpenSpec validation passed. Self-review verified that the fix changes SDK discovery without broadening workflow triggers or dropping native acceptance. No hosted retry, APK, or physical-device check was performed here; tasks 1.4/1.5 remain unchecked.
 
 Publish the workflow and regression test together, then start a new dispatch on the updated `main`. Rerunning the original failed run uses its original commit and does not exercise this fix.
+
+## Owner-reported successful workflow
+
+After the SDK discovery correction, the owner reported that the action ran successfully. The run URL/commit, job completion (rather than a skipped job), artifact contents, actual dependency/tool versions, and APK hash have not yet been inspected in this workspace. Record this as an owner-reported workflow result; do not infer physical installation, background playback, or completed task 1.4/1.5 from it.
+
+Next retrieve `android-shell-<run id>` before its one-day expiry, extract it under `.local/android-shell-review/`, verify the APK hash against `SHA256SUMS.txt`, and install/launch the shell on the CMF Phone 2 Pro. Retain `bootstrap-source.tar.gz` for native-source/lockfile review and incorporation. Record the run URL and exact phone Android/build version with the installation result before progressing to task 2.8.
+
+## Owner-reported installation and launch
+
+After the installation-check instructions, the owner confirmed the shell is working on the phone. Record physical installation/launch as owner-reported successful. This confirms the empty shell only; no audio service or background-playback result is implied.
+
+The downloaded artifact is not yet present at `.local/android-shell-review/`, and `src/web/android/` does not exist in this workspace. Native-source/lockfile review and incorporation, run/commit reference, APK hash, and exact phone OS/build are still pending. Task 1.5 remains unchecked until the remaining evidence and generated-source review are complete; the next implementation work is the task 2.8 Media3/native authority experiment.
+
+## Retrieved artifact and reviewed source incorporation
+
+The owner's Downloads contained the ZIP and extracted artifact for [run 37897504459](https://github.com/Antariksh2k04/MusicServer/actions/runs/37897504459). Copied the APK, source archive, and checksum manifest into ignored `.local/android-shell-review/`, leaving the originals intact. Both files match the supplied SHA-256 manifest:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `music-server-shell-debug.apk` | `43170c23adc958cc2f44e40929d092fb37f01d582e2eaf8686336171f2e4b7a3` |
+| `bootstrap-source.tar.gz` | `4bcf681ea28cf66bc3c14e9e36f48a1ccbb277bc5c1d1a16155ac6513110c34b` |
+
+Checked all 126 archive entries for relative allowed paths and rejected links/special entry types before extraction. The returned report names commit `55eb3722c74a9fd111c194825f58109ccc19bb99`, Node `v24.18.0`, verified template generation, and successful APK compilation. Its device/background flags remain false; the owner's separate installation/launch confirmation is the physical shell result. The report records selected pins, not observed Java patch/IDE/phone versions.
+
+Reviewed the existing manifest versions/scripts against the returned manifest, exact Capacitor core/Android/CLI 8.5.2 lock entries/integrities, SDK 24/36/36, AGP 8.13.0, Gradle 8.14.3, Java 21 compilation configuration, app manifest/MainActivity, relative Capacitor module references, and ignore rules. Incorporated the generated project under `src/web/android/` and the genuine npm manifest/lockfile. The official generated Gradle wrapper JAR is retained; its SHA-256 is `7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172` (observed hash, not an independently fetched upstream comparison). APKs, copied web assets, plugin intermediates, SDK paths, signing keys, and archive files remain ignored.
+
+Future manual workflow runs use `npm ci`, frontend checks, `npm run android:sync`, and the checked-in project's `assembleDebug`. They no longer invoke the temporary bootstrap or `cap add android`. New artifacts carry the APK and a commit/run build report rather than another generated source archive. Actual hosted execution of this revised source-build workflow remains pending; the successful initial bootstrap and owner-installed APK are the shell evidence.
+
+Local validation after incorporation: 20 frontend tests and 7 workflow/bootstrap tests passed; native-shell and browser TypeScript/Vite builds passed with the existing large-bundle warning. Backend/test project smoke build passed with zero warnings/errors using workspace .NET/NuGet caches and `.tools/native-shell-check-bin` as `BaseOutputPath` (actual PowerShell-forwarded output `.tools/native-shell-check-binDebug/net10.0`). Backend tests were not rerun because server sources were unchanged. Workflow YAML and every run block's Bash syntax passed. The initial ad-hoc YAML-check helper assumed every step had a name; corrected the helper and reran successfully without changing the workflow for that helper error.
+
+Self-review confirmed canonical native code is preserved across sync/build, source/lock provenance matches the working APK, private/temporary data remains ignored, and no playback or production integration is inferred. Task 1.5's minimal structure/build/install/source-review criteria are now supported; tasks 1.3/1.4 retain exact device/full toolchain dependencies, and task 2.8 remains the next native playback implementation. Do not treat the empty shell as native audio or completed capability acceptance.
+
+## Instrumentation review correction
+
+Review identified that the imported template instrumentation assertion expected `com.getcapacitor.app` instead of the configured application ID. Updated it to `com.musicserver.shell` and verified the expected string matches `app/build.gradle`. `connectedAndroidTest` was not run; this static check does not establish a passing device instrumentation suite.

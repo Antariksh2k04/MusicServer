@@ -25,6 +25,7 @@ public static class DiagnosticEndpoints
             await next(context);
         });
         var diagnostic = app.MapGroup("/api/v1/diagnostics");
+        diagnostic.MapNativeDiagnostics();
         diagnostic.MapGet("/bootstrap", (HttpContext context, IAntiforgery csrf) => Results.Ok(new
         {
             mode = "diagnostic", csrfToken = csrf.GetAndStoreTokens(context).RequestToken
@@ -47,6 +48,7 @@ public static class DiagnosticEndpoints
         {
             var http = context.HttpContext;
             var sessions = http.RequestServices.GetRequiredService<DiagnosticSessions>();
+            if (http.Request.Headers.ContainsKey("Authorization")) return Problem(401, "signInRequired");
             if (sessions.Authenticate(http.Request.Cookies[DiagnosticSessions.CookieName]) is null)
                 return Problem(401, "signInRequired");
             if (HttpMethods.IsPost(http.Request.Method) && !await SafeMutationAsync(http,
@@ -63,6 +65,11 @@ public static class DiagnosticEndpoints
         {
             sessions.Revoke(context.Request.Cookies[DiagnosticSessions.CookieName]);
             context.Response.Cookies.Delete(DiagnosticSessions.CookieName, new CookieOptions { Path = "/api/v1/diagnostics" });
+            return Results.NoContent();
+        });
+        owner.MapPost("/native/revoke-all", (DiagnosticNativeSessions sessions) =>
+        {
+            sessions.RevokeAll();
             return Results.NoContent();
         });
         owner.MapGet("/fixtures", (FixtureCatalog catalog) => Results.Ok(new { items = catalog.List() }));
@@ -90,7 +97,7 @@ public static class DiagnosticEndpoints
         catch (UnauthorizedAccessException) { return Problem(503, "storageUnavailable"); }
     }
 
-    private static async Task<IResult> StreamAsync(Guid id, HttpContext context, FixtureCatalog catalog)
+    internal static async Task<IResult> StreamAsync(Guid id, HttpContext context, FixtureCatalog catalog)
     {
         var track = catalog.Find(id);
         if (track is null) return Problem(404, "trackUnavailable");

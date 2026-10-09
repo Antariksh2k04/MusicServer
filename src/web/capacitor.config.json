@@ -1,5 +1,6 @@
 {
   "appId": "com.musicserver.shell",
   "appName": "Music Server Shell",
-  "webDir": "dist-native"
+  "webDir": "dist-native",
+  "loggingBehavior": "none"
 }

@@ -1,6 +1,6 @@
 # Remote Android shell build
 
-The manual **Android shell bootstrap** workflow generates the official Capacitor 8.5.2 Android project and a debug APK on GitHub Actions. Android Studio/JDK/SDK are optional on this PC for compilation. The shell only displays an installation-check screen; it has no sign-in, uploads, audio, or background service. The browser experiment continues through Vite.
+The manual **Android shell bootstrap** workflow builds the checked-in Capacitor 8.5.2 project at `src/web/android/` on GitHub Actions. Its initial generated sources and genuine npm lockfile were reviewed and incorporated from successful run `37897504459`. Future runs restore with `npm ci` and sync web assets into this existing project; they do not regenerate native sources. Android Studio/JDK/SDK are optional on this PC for compilation. The debug sources now contain the local native playback prototype; a new hosted build and physical validation are still required. The browser experiment continues through Vite.
 
 ## Publish and run
 
@@ -10,7 +10,7 @@ Use your normal, non-administrator PowerShell in the repository. Its local Git i
 git add .
 git diff --cached --stat
 git diff --cached --check
-git commit -m "Prepare local streaming experiment and Android shell bootstrap"
+git commit -m "Keep reviewed Android shell sources for future builds"
 git push -u origin main
 ```
 
@@ -28,6 +28,8 @@ Get-FileHash .local/android-shell-review/music-server-shell-debug.apk -Algorithm
 
 Transfer the APK to the CMF Phone 2 Pro, allow installation from that source temporarily, and open **Music Server Shell**. Record the workflow URL/commit, APK hash, exact Android/build version, installation result, and visible screen. Disable the install permission afterward. Different runs use temporary debug certificates; uninstall an old shell if an update is rejected. This clears its local data. This APK is not the release signing identity.
 
-`bootstrap-source.tar.gz` contains the generated Android project, package manifest/lockfile, Capacitor config, and a report. Review it in the ignored directory, then incorporate the generated project and genuine dependencies under `src/web/` before native service work. Do not rerun `cap add android` over a customized project. Temporary build/local SDK paths and signing keys are excluded. Inspect workflow logs for exact Java/SDK/Gradle versions. Actual phone results remain separate from the report.
+The original bootstrap artifact's `bootstrap-source.tar.gz` is retained under `.local/android-shell-review/`. Its reviewed sources/locks now live under `src/web/`. Future artifacts contain the APK, `build-report.json`, and `SHA256SUMS.txt`; the commit in the report identifies their checked-in sources. Do not rerun `cap add android` over this project. Inspect workflow logs for exact Java/SDK/Gradle versions. Actual phone results remain separate from the report.
 
-The next experiment needs local Platform Tools/USB debugging and `adb reverse` to reach the loopback backend. It will add Media3 and native authority; this shell cannot test seeking or background playback. Oracle remains in the final phase.
+For optional local compilation after installing the pinned dependencies/JDK/SDK, run `npm --prefix src/web run android:sync`, then run `gradlew.bat assembleDebug` from `src/web/android/`. Sync regenerates plugin configuration and copied web assets while preserving app-owned Java/Kotlin sources. Generated web assets, plugin intermediates, local SDK paths, builds, and signing keys are ignored.
+
+The workflow compiles both variants and debug instrumentation sources, and runs native unit tests. It does not execute connected-device tests. Follow [Local Android playback](android-local-playback.md) for Platform Tools/USB setup, fixtures, native renewal, and the pending phone checks. Oracle remains in the final phase.

@@ -1,6 +1,6 @@
 # Music Server
 
-Ionic React and ASP.NET Core local streaming experiment for the active OpenSpec change `first-music-stream`. Production Google identity, MySQL persistence, OCI storage, and Android delivery are still pending.
+Ionic React and ASP.NET Core local streaming experiment for the active OpenSpec change `first-music-stream`, with a Capacitor/Media3 Android debug prototype awaiting native build and physical validation. Production Google identity, MySQL persistence, and OCI storage remain pending.
 
 ## Build
 
@@ -41,7 +41,7 @@ Personal audio belongs only in ignored `.local/` storage, never frontend public 
 
 Select **Upload**, choose one MP3, and wait for confirmation. Return to **Library**, select the fixture, press **Play**, and seek after duration loads. Switching views preserves the player. Reloading restores selection/position paused while the fixture and diagnostic session still exist. **Reload track** rechecks session/availability and loads paused. A failed or cancelled upload is never presented as confirmed saved; refresh before retrying an ambiguous transfer.
 
-The local probe checks MP3 frame structure and supplies filename/unknown-tag fallbacks. Embedded metadata extraction remains a production task. This experiment has no cloud access, database, Google login, Android shell, or native background service.
+The local probe checks MP3 frame structure and supplies filename/unknown-tag fallbacks. Embedded metadata extraction remains a production task. This browser experiment has no cloud access, database, or Google login. The separate Android debug prototype uses a native background service; follow [Local Android playback](docs/android-local-playback.md) to build and test it over USB. Playback on the physical phone has not yet been verified.
 
 ## Local configuration and limits
 
@@ -49,7 +49,7 @@ The startup script fixes `Development`, diagnostics enabled, `http://127.0.0.1:5
 
 Backend environment settings use double underscores, for example `Diagnostics__SessionSeconds`. Defaults are 1,800-second sessions (maximum 3,600), 250 MiB provider payload capacity, 100 temporary fixtures, and 50 MiB per file. Validation uses one additional staging file of at most 50 MiB; provider pending writes count toward the 250 MiB cap. Small metadata/lock files are additional disk usage. `Diagnostics__StorageOperationLimit` defaults to 10,000 provider calls per process; failed calls count and exhausted admission requires a restart. These are local test limits. `Local__Port` can change backend port only if the Vite proxy is also changed. `Diagnostics__OperatorKey` can supply an existing process-only key for private automation.
 
-Diagnostic cookies are HttpOnly/SameSite Strict, with Origin and antiforgery checks on mutations. They intentionally serve only local HTTP with distinct diagnostic names. Diagnostics are absent unless explicitly enabled in Development; liveness is 200 and production readiness remains 503. Do not expose this experiment publicly. Normal shutdown attempts to remove owned fixture files; a crash may leave ignored orphan files, which are not reimported on restart.
+Diagnostic cookies are HttpOnly/SameSite Strict, with Origin and antiforgery checks on mutations. They intentionally serve only local HTTP with distinct diagnostic names. Native debug sessions have 30-second access (`Diagnostics__NativeAccessSeconds`, maximum 600), rotating refresh authority, and the same absolute session lifetime; tokens are native headers, not media URLs. Browser-context native issuance and mixed cookie/bearer requests are rejected. Diagnostics are absent unless explicitly enabled in Development; liveness is 200 and production readiness remains 503. Do not expose this experiment publicly. Normal shutdown attempts to remove owned fixture files; a crash may leave ignored orphan files, which are not reimported on restart.
 
 Uploads and streams now use the provider-independent `IObjectStore` boundary. Its private filesystem implementation requires an absolute local directory, explicit enablement, and Development; production does not register it. Read the [storage evidence](openspec/changes/first-music-stream/evidence/local-storage.md) for contracts, failure behavior, and cleanup limitations. No Oracle account is needed for these local checks.
 
@@ -73,9 +73,9 @@ These commands report available local tooling/configuration and validate probe i
 
 ## Android setup status
 
-The owner selected remote compilation. Follow [Remote Android shell build](docs/android-shell-build.md) to publish and manually run `.github/workflows/android-shell.yml`, download the generated sources/lockfile and debug APK, and record installation on the CMF phone. The separate empty Ionic entry builds with `npm --prefix src/web run build:native-shell`; it does not load browser diagnostics/audio. The workflow has been prepared locally; no hosted APK build or installation has been verified. Tasks 1.4/1.5 stay open.
+The owner selected remote compilation. Successful run `37897504459` produced the empty shell APK; its hashes and source manifest/template pins were checked locally, and the owner confirmed installation/launch on the CMF phone. The reviewed project and real Capacitor lockfile are now under `src/web/`. The debug prototype now adds Media3 playback and native diagnostic authority, awaiting a new native build and physical checks. Follow [Remote Android shell build](docs/android-shell-build.md), then [Local Android playback](docs/android-local-playback.md). The separate Ionic entry builds with `npm --prefix src/web run build:native-shell`; it does not load browser diagnostics/audio. The owner reports Android 16; exact Nothing OS/build, the full toolchain/host gate, and native playback acceptance remain pending.
 
-Task 1.4 has selected native versions in `scripts/android-toolchain.json`. Java/SDK/Capacitor packages are not installed here, and there is no checked-in Android project or APK yet. For optional local compilation, install [Android Studio](https://developer.android.com/studio) 2025.2.1 or newer, select Gradle JDK 21, and use SDK Manager for Platform 36, Build Tools 35.0.0, and Platform Tools 37.0.1. Then check local metadata:
+Task 1.4 has selected native versions in `scripts/android-toolchain.json`. Java/SDK are not installed locally; Capacitor 8.5.2 is pinned in the checked-in package manifest/lockfile but has not been restored on this PC. For optional local compilation, install [Android Studio](https://developer.android.com/studio) 2025.2.1 or newer, select Gradle JDK 21, and use SDK Manager for Platform 36, Build Tools 35.0.0, and Platform Tools 37.0.1. Then check local metadata:
 
 ```powershell
 ./scripts/check-android-toolchain.ps1
@@ -84,6 +84,6 @@ node --test tests/scripts/android-toolchain.test.cjs
 # ./scripts/check-android-toolchain.ps1 -JdkDirectory $env:JAVA_HOME -SdkDirectory $env:ANDROID_HOME
 ```
 
-The inventory does not execute tools, accept licences, or verify an APK. Registry access remains blocked locally; the bootstrap fetches the pinned Capacitor packages on its runner and returns genuine locks for review. See [toolchain evidence](openspec/changes/first-music-stream/evidence/toolchain.md) for pins and [remote bootstrap evidence](openspec/changes/first-music-stream/evidence/android-shell-bootstrap.md) for executed checks and remaining gates. These prerequisites do not require Oracle. `ionic serve`/Vite runs the browser client; native open/run commands need the reviewed generated Android project and appropriate local tooling. Local Platform Tools/USB access is still needed for the early loopback playback experiment.
+The inventory does not execute tools, accept licences, or verify an APK. Registry access remains blocked locally; the runner restores the reviewed Capacitor dependencies from the genuine lockfile. See [toolchain evidence](openspec/changes/first-music-stream/evidence/toolchain.md) for pins and [remote bootstrap evidence](openspec/changes/first-music-stream/evidence/android-shell-bootstrap.md) for executed checks and remaining gates. These prerequisites do not require Oracle. `ionic serve`/Vite runs the browser client; `npm --prefix src/web run android:sync` prepares the existing native project after restoring dependencies. Local native open/run commands still need appropriate tooling. Local Platform Tools/USB access is needed for the early loopback playback experiment.
 
 Read `AGENTS.md` and the active change's proposal/specs/design/tasks before contributing. Root FRS/SDS documents are project context; OpenSpec owns detailed active requirements. See `openspec/changes/first-music-stream/evidence/` for validation and remaining gates.
