@@ -85,7 +85,9 @@ jobs:
         run: |
           mkdir -p .local/android-artifact
           cp src/web/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
+          cp src/web/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk .local/android-artifact/music-server-shell-debug-tests.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug-tests.apk
           node - <<'NODE'
           const fs = require('node:fs');
           const report = {
@@ -106,7 +108,7 @@ jobs:
           fs.writeFileSync('.local/android-artifact/build-report.json', JSON.stringify(report, null, 2) + '\n');
           NODE
           cd .local/android-artifact
-          sha256sum music-server-shell-debug.apk build-report.json > SHA256SUMS.txt
+          sha256sum music-server-shell-debug.apk music-server-shell-debug-tests.apk build-report.json > SHA256SUMS.txt
           test "$(du -sb . | cut -f1)" -lt 104857600
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

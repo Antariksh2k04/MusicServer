@@ -45,7 +45,17 @@ Record exact Nothing OS/build/security patch and normal battery settings in the 
 5. Pause, terminate the process, and relaunch. Saved track/position should restore paused after authenticated detail validation. Force-stop survival is not promised. The checkpoint contains only a track ID, position, and timestamp.
 6. Sign out while playing; confirm silence, no restoration, and native authority removal. For offline logout, sign in again, then remove only the reverse mapping using the cleanup command below and repeat logout; the UI must say that server revocation was unconfirmed. Recreate the mapping and sign in again. To test remote revocation, sign in on the desktop, obtain its CSRF context, and POST `/api/v1/diagnostics/native/revoke-all` with that cookie, exact Origin, and CSRF header; subsequent native ranges/refresh must fail. Never put tokens or the operator key in shell command arguments or committed evidence.
 
-Use `./gradlew.bat connectedDebugAndroidTest` only with an authorized physical device and local tooling. The instrumentation suite checks package identity and service reattachment; it cannot establish audible/background acceptance by itself.
+Use `./gradlew.bat connectedDebugAndroidTest` only with an authorized physical device and local tooling. The instrumentation suite checks package identity, service reattachment, and Android parsing of the API's offset-bearing session timestamps; it cannot establish audible/background acceptance by itself.
+
+Hosted artifacts also include `music-server-shell-debug-tests.apk`, signed in the same run as the app. To run the timestamp regressions without a local JDK/Gradle installation, install both APKs from that one artifact over the existing authorized wireless connection:
+
+```powershell
+& $adbPath -s $phoneEndpoint install -r '.local/android-shell-review/music-server-shell-debug.apk'
+& $adbPath -s $phoneEndpoint install -r '.local/android-shell-review/music-server-shell-debug-tests.apk'
+& $adbPath -s $phoneEndpoint shell am instrument -w -e class com.musicserver.shell.DiagnosticGrantTimeInstrumentedTest com.musicserver.shell.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+Expect `OK (3 tests)`. Do not mix app/test APKs from different runs. If either APK update fails because its temporary signing certificate changed, remove that old debug app or test package through phone Settings before installing the matching pair; removing the app clears its local state. Do not automatically clear app data. Instrumentation can restart the app, so run this check before the listening experiment, then sign in and test the normal app flow separately.
 
 ## Limits and cleanup
 
