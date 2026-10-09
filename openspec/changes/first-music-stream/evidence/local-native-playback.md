@@ -66,3 +66,11 @@ The API serializes `DateTimeOffset` expiry values with explicit UTC offsets. Rep
 The hosted workflow now packages the already-built matching instrumentation APK and its checksum alongside the debug app, so physical timestamp checks can run over wireless ADB without installing a local JDK. Preparing this fix is not a successful login/playback result. A fresh hosted build, physical instrumentation, successful APK sign-in/listing, seek/renewal, and background acceptance remain pending. Tasks 2.8 and 2.9 remain unchecked.
 
 Local follow-up checks passed: seven bootstrap/SDK workflow contracts, the native-shell TypeScript/Vite build, strict OpenSpec validation, and whitespace review. No local Java/Gradle compilation or execution of the new Android instrumentation cases is claimed.
+
+## Verified parser-fix build and owner-reported sign-in
+
+2026-10-09: verified [run 37934530094](https://github.com/Antariksh2k04/MusicServer/actions/runs/37934530094) at parser-fix commit `6810817f7a3a144a2fca1458a0899347bf68f06c`. Job `113833167963` passed frontend checks, native debug/release and instrumentation compilation, release isolation, and packaging/upload. Artifact `android-shell-37934530094` (ID `11617419157`) is available with the debug app and matching instrumentation APK; it expires `2026-10-10T13:10:26Z`. Build success does not mean the instrumented tests executed on a device.
+
+After following the rebuild/install instructions, the owner reported that APK sign-in is working. Record this as owner-reported diagnostic sign-in success; an installed APK checksum comparison and execution of the three timestamp instrumentation cases remain pending. This does not establish production Google identity, audible seeking, background renewal, or uninterrupted listening.
+
+Next execute track selection/play/pause, forward/backward seeking, the separate 50-second locked native-renewal probe, and uninterrupted >=15-minute listening, followed by the remaining device scenarios in the run guide. Tasks 2.8 and 2.9 remain unchecked; overall progress stays 6/51.
