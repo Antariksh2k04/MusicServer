@@ -22,6 +22,17 @@ allprojects {
         google()
         mavenCentral()
     }
+
+    // Cover app, Capacitor, and regenerated Cordova instrumentation classpaths.
+    // Kotlin 1.8 merges the old jdk7/jdk8 classes into the main standard library.
+    ['com.android.application', 'com.android.library'].each { androidPlugin ->
+        pluginManager.withPlugin(androidPlugin) {
+            dependencies {
+                implementation platform("org.jetbrains.kotlin:kotlin-bom:${rootProject.ext.kotlinStdlibVersion}")
+                androidTestImplementation platform("org.jetbrains.kotlin:kotlin-bom:${rootProject.ext.kotlinStdlibVersion}")
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {

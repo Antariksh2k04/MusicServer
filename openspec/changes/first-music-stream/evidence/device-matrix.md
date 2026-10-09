@@ -23,6 +23,8 @@ Later owner confirmation: the debug empty shell from run `37897504459` installs 
 
 Use official Android platform tools and the owner's trusted computer/USB pairing. The [Android adb guide](https://developer.android.com/tools/adb) describes debugging authorization and selecting a hardware device. Do not commit serials, account identifiers, call details, or signing keys. Inspect device presence locally; do not paste `adb devices` output into committed evidence.
 
+2026-10-09 transport update: the owner cannot connect this laptop by USB and confirmed the phone/laptop can share Wi-Fi. Use the paired wireless ADB procedure in [the local playback guide](../../../../docs/android-local-playback.md), with its explicit `-s` endpoint selector instead of the USB-only `-d` examples below. Actual pairing, reverse mapping, normal locked-screen connection stability, and physical playback remain unverified. Platform Tools are still absent from this laptop's PATH and workspace tools inventory.
+
 With exactly one authorized hardware device, these read-only commands can capture noncredential build fields:
 
 ```powershell
@@ -42,3 +44,9 @@ The eventual background experiment must use the installed native player on this 
 On 2026-10-09 the owner confirmed **Android 16** on the CMF Phone 2 Pro. This is an owner-reported major version, not an adb observation. Exact Nothing OS/build/security patch, battery configuration, USB authorization, and accessory/call evidence remain pending. Task 1.3 stays unchecked.
 
 Self-review confirmed installed versions are labeled observations, stable channels are unverified, phone data is not fabricated, and no developer-option/battery/accessory action was performed. The inventory tool also skips network SDK paths. The remaining physical records require the owner's device; task 1.3 cannot pass during this unattended run.
+
+## Physical follow-up
+
+2026-10-09: authorized read-only inspection through the owner's paired wireless ADB server observed Android `16`, build `B4.1-260812-1729`, and security patch `2026-08-01`. The owner reported successful native sign-in, playback/seeking, locked renewal, 15-minute locked listening, and the additional control/interruption/restart/sign-out groups recorded in [local playback evidence](local-native-playback.md). These are owner reports; exact accessory and interruption variants are not recorded.
+
+The observed build does not establish stable/latest update status or marketed Nothing OS version. Normal battery settings, browser channels, and exact accessory/call-test inventory remain unrecorded. Task 1.3 stays unchecked. Wireless pairing and loopback connectivity have succeeded; the earlier unverified transport notes above describe the state before this follow-up.

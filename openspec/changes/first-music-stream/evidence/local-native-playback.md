@@ -1,6 +1,6 @@
 # Local native playback — tasks 2.8 and 2.9
 
-2026-10-09: **prototype source and local automated checks prepared; native compilation and physical playback remain unverified.** Neither task is checked complete. Overall progress remains 6/51. The owner reports CMF Phone 2 Pro / Android 16; exact OS/build and USB/device access are pending. Oracle remains in groups 7–8.
+2026-10-09 current status: **native debug/release and instrumentation compilation plus release isolation passed on the hosted runner; physical playback remains unverified.** Neither task is checked complete. Overall progress remains 6/51. The owner reports CMF Phone 2 Pro / Android 16 and cannot use USB with this laptop; shared Wi-Fi is confirmed, and wireless ADB pairing/device checks are pending. Oracle remains in groups 7–8. The initial preparation notes below describe checks before the hosted follow-up recorded at the end.
 
 ## Implemented experiment boundary
 
@@ -36,3 +36,57 @@ Self-review corrected stale-session auth responses, signed-out heartbeats cancel
 Follow [the run guide](../../../../docs/android-local-playback.md) for exact build/USB/fixture commands and redacted recording. Add the new workflow commit/run/APK hash and observed renewal/range/instance values after the owner installs it. Add each physical scenario's times and pass/fail, requested/audible seek positions, accessory/call and normal battery settings. Keep private identifiers/media/tokens out of evidence. Revoke sessions and remove only owned fixture/mapping resources after testing.
 
 USB evidence will not satisfy public HTTPS, OCI/private cloud behavior, Wi-Fi/mobile-data recovery, Google identity, MySQL durability, release signing, or the full-MVP multi-track gate. Those retain their independent tasks.
+
+## Hosted build failure and dependency alignment
+
+2026-10-09: [run 37915340742](https://github.com/Antariksh2k04/MusicServer/actions/runs/37915340742), commit `f76bd003400cdfe8b9bffbbabc50111648a4fb32`, passed SDK installation, dependency restore, frontend checks, and Capacitor sync. Its log shows app debug Java and app instrumentation Java compilation and duplicate-class checks completed, but the overall native build failed at `:capacitor-cordova-android-plugins:checkDebugAndroidTestDuplicateClasses`. Packaging and upload were skipped; this run produced no downloadable APK. Release compilation/isolation and device execution are not established by those partial steps.
+
+The generated Cordova test classpath mixed `kotlin-stdlib:1.8.22` with the pre-merge `kotlin-stdlib-jdk7/jdk8:1.6.21`, duplicating standard-library classes. Apply Kotlin BOM `1.8.22` to implementation and Android instrumentation dependencies of every Android application/library module through the checked-in root Gradle build. This covers regenerated Cordova modules without editing generated files or disabling duplicate-class checks. The runtime pin is distinct from the previously selected future Kotlin compiler version; this Java prototype does not add a Kotlin compiler plugin. See [Kotlin's alignment guidance](https://kotlinlang.org/docs/whatsnew18.html#usage-of-the-latest-kotlin-stdlib-version-in-transitive-dependencies).
+
+Cleanup PR #1 removed the unused arithmetic unit-test template. The Gradle unit task remains in the workflow, but `nativeUnitTestsVerified` is false while no app-specific native unit cases exist. Instrumentation sources and release-isolation checks remain intact.
+
+The alignment change still requires a fresh manual workflow run on its new commit. Re-running the failed run would rebuild its old commit. No physical playback result or task 2.8/2.9 completion is implied by preparing this fix.
+
+## Successful hosted follow-up and wireless preparation
+
+Verified [run 37917216254](https://github.com/Antariksh2k04/MusicServer/actions/runs/37917216254) on `bugfix/frontend/fix-android-kotlin-alignment`, commit `78658c7c653292527c3e749874e49004d8b9a9f6`. SDK setup, frontend restore/checks, native compilation, release diagnostic isolation, and debug APK packaging/upload completed successfully. The Kotlin alignment fixed the generated Cordova duplicate-class failure. This is real hosted build evidence, not device execution. The unit task has no app-specific test cases and its report flag remains false.
+
+The available artifact is `android-shell-37917216254`, artifact ID `11610307086`, ZIP size 8,869,576 bytes, expiring `2026-10-10T10:26:37Z`. GitHub reports ZIP digest `sha256:2f441ab84b04c341555d3862ccb23204242204edc0e7151d9da24241749a5acf`; this is not the APK's own digest. The expected APK file is `music-server-shell-debug.apk`. Phone installation, APK checksum comparison, and audible/background checks remain pending.
+
+The owner confirmed shared Wi-Fi and approved replacing USB-only planning wording with authorized paired wireless ADB. The application code and fixed loopback API are unchanged; only the debugging transport differs. Use the updated run guide's separate pairing/connection ports and explicit `-s` selector. Confirm `get-state`, the one reverse mapping, and stable connectivity under normal battery settings before interpreting playback results. A wireless tunnel does not establish production network handover or cloud acceptance. Tasks 2.8 and 2.9 remain unchecked.
+
+## Physical native sign-in failure and timestamp correction
+
+2026-10-09: the owner installed the prototype on the CMF phone and confirmed that its Chrome browser reached loopback health through paired wireless ADB. A private laptop-side native sign-in probe succeeded, and backend status-only logs showed the APK's `POST /api/v1/diagnostics/native/session` requests returning `200`. The app nevertheless reported unavailable native authority. Debug inspection confirmed the installed package is debuggable, has internet permission, and its clock agrees with the laptop; its no-backup session directory was empty. APK hash/build provenance and the full device matrix remain unverified.
+
+With the owner's interactive retries, a temporary non-suspending debugger probe captured exception types and code locations only. The failing path included `j$.time.format.DateTimeParseException` in `DateTimeFormatter.parse`, followed by `IOException` from `DiagnosticBroker.accept` into `DiagnosticBroker.login`. No credential strings, request bodies, local variables, or personal media were read. The probe detached; temporary backend request-status logging was restored.
+
+The API serializes `DateTimeOffset` expiry values with explicit UTC offsets. Replace the broker's `Instant.parse` calls with one `OffsetDateTime.parse(...).toInstant()` helper for grant validation, persisted-session restoration, and access expiry. This retains offset/fraction precision and rejects malformed or offsetless values. See [Java's offset datetime parser](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/OffsetDateTime.html#parse(java.lang.CharSequence)). Three debug instrumentation cases cover the .NET seven-digit fraction with `+00:00`, equivalent positive/negative/Zulu offsets, and invalid input. They must execute on Android; a desktop parser test cannot prove desugared behavior.
+
+The hosted workflow now packages the already-built matching instrumentation APK and its checksum alongside the debug app, so physical timestamp checks can run over wireless ADB without installing a local JDK. Preparing this fix is not a successful login/playback result. A fresh hosted build, physical instrumentation, successful APK sign-in/listing, seek/renewal, and background acceptance remain pending. Tasks 2.8 and 2.9 remain unchecked.
+
+Local follow-up checks passed: seven bootstrap/SDK workflow contracts, the native-shell TypeScript/Vite build, strict OpenSpec validation, and whitespace review. No local Java/Gradle compilation or execution of the new Android instrumentation cases is claimed.
+
+## Verified parser-fix build and owner-reported sign-in
+
+2026-10-09: verified [run 37934530094](https://github.com/Antariksh2k04/MusicServer/actions/runs/37934530094) at parser-fix commit `6810817f7a3a144a2fca1458a0899347bf68f06c`. Job `113833167963` passed frontend checks, native debug/release and instrumentation compilation, release isolation, and packaging/upload. Artifact `android-shell-37934530094` (ID `11617419157`) is available with the debug app and matching instrumentation APK; it expires `2026-10-10T13:10:26Z`. Build success does not mean the instrumented tests executed on a device.
+
+After following the rebuild/install instructions, the owner reported that APK sign-in is working. Record this as owner-reported diagnostic sign-in success; an installed APK checksum comparison and execution of the three timestamp instrumentation cases remain pending. This does not establish production Google identity, audible seeking, background renewal, or uninterrupted listening.
+
+Next execute track selection/play/pause, forward/backward seeking, the separate 50-second locked native-renewal probe, and uninterrupted >=15-minute listening, followed by the remaining device scenarios in the run guide. Tasks 2.8 and 2.9 remain unchecked; overall progress stays 6/51.
+
+## Owner-reported playback, renewal, and locked listening
+
+2026-10-09: after being asked to run the following three checks, the owner replied "all working". Record the requested checks as passed by owner report, without inventing measurement values:
+
+| Requested check | Result |
+| --- | --- |
+| Play, pause/resume, and forward/backward seek on an uploaded MP3 | Pass (owner-reported) |
+| Separate 50-second locked renewal probe: same player instance, increased native renewals, last HTTP `206` | Pass (owner-reported); exact instance/counter values not supplied |
+| Separate uninterrupted 15-minute locked listening with a sufficiently long track | Pass (owner-reported); fixture and start/end timestamps not supplied |
+
+Authorized read-only ADB inventory confirmed Android `16`, build `B4.1-260812-1729`, security patch `2026-08-01`. This identifies the installed build, not its release-channel/latest-version status or battery settings.
+
+In a follow-up asking about four further groups, the owner replied "yes all ok". Record notification/lock-screen and headset or Bluetooth play/pause, incoming-call or competing-audio handling and headset disconnection, returning without duplicate playback and paused process restart restoring position, and sign-out during playback stopping audio and clearing restoration as owner-reported passes. Exact accessory, interruption type, restart method, and online/offline sign-out conditions were not supplied; do not infer every alternative was exercised.
+
+Still collect representative CBR/indexed/unindexed VBR identities and requested/audible seek measurements, explicit offline logout and remote revocation evidence, timestamp instrumentation results, and cleanup. Keep the full local tasks 2.8/2.9 unchecked until their remaining criteria have evidence. Production Google/MySQL/OCI and public transport retain their own tasks.

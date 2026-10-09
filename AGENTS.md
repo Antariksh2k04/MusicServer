@@ -22,6 +22,8 @@ Maintain detailed requirements in OpenSpec; preserve root documents as context. 
 
 Follow the active task groups for execution order: Oracle setup/integration is deferred to the final phase. Local storage evidence does not complete cloud acceptance; retain early physical Android investigation.
 
+The owner cannot use USB with this laptop and confirmed shared Wi-Fi. Use paired wireless ADB with `adb -s <connection-endpoint> reverse tcp:5080 tcp:5080` for the local phone experiment; keep the diagnostic backend on loopback. Pairing, sign-in, playback/seek, native renewal, and 15-minute locked listening have owner-reported success. See `docs/android-local-playback.md` and the change's evidence for remaining physical acceptance checks.
+
 ## Build, Test, and Development Commands
 
 Run from the root; see `README.md` for prerequisites:
@@ -53,6 +55,8 @@ Use Vitest and xUnit; no coverage percentage is required. Name tests by behavior
 Read and follow [gitworkflow.md](gitworkflow.md) before every use of the GitHub MCP integration and before Git operations. It governs branch naming, Conventional Commits, checks, and pull requests. Its GitLab issue examples also apply to GitHub issue numbers; use `frontend`, `backend`, or `fullstack` for this repository. Keep read-only GitHub inspection read-only; branch preparation applies when making changes. Do not push directly to `main` or `dev`.
 
 PRs describe behavior, requirement IDs, validation, and limitations; link issues and include UI screenshots when applicable.
+
+After the prototype phase, always create a GitHub issue in `Antariksh2k04/MusicServer` before starting each product implementation task, or reuse an existing issue covering that task. Record its scope, links to governing OpenSpec requirements/tasks, and validation checklist; keep detailed requirements in OpenSpec. Include the issue number in the branch name, link it in the PR, and close it when its acceptance criteria are verified and the change is merged.
 
 ## Security & Scope
 

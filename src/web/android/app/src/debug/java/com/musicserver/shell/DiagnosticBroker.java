@@ -14,6 +14,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -50,7 +51,7 @@ final class DiagnosticBroker {
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.DECRYPT_MODE, key(), new GCMParameterSpec(128, iv));
             grant = new JSONObject(new String(cipher.doFinal(saved, 12, saved.length - 12), StandardCharsets.UTF_8));
-            enabled = Instant.parse(grant.getString("sessionExpiresAt")).isAfter(Instant.now());
+            enabled = parseGrantTime(grant.getString("sessionExpiresAt")).isAfter(Instant.now());
         } catch (Exception ignored) { enabled = false; }
         if (!enabled) { grant = null; file.delete(); }
     }
@@ -79,7 +80,7 @@ final class DiagnosticBroker {
         if (!signedIn() || grant == null) throw new HttpFailure(401);
         long expected = epoch();
         try {
-            if (!Instant.parse(grant.getString("accessExpiresAt")).isAfter(Instant.now())) rotate(expected);
+            if (!parseGrantTime(grant.getString("accessExpiresAt")).isAfter(Instant.now())) rotate(expected);
             if (!signedIn() || epoch() != expected) throw new IOException("cancelled");
             return grant.getString("accessToken");
         } catch (JSONException e) { failAuth(); throw new HttpFailure(401); }
@@ -161,8 +162,8 @@ final class DiagnosticBroker {
         try {
             if (!next.getString("accessToken").matches("[0-9A-F]{64}")
                 || !next.getString("refreshToken").matches("[0-9A-F]{64}")) throw new IOException("invalidGrant");
-            Instant.parse(next.getString("accessExpiresAt"));
-            if (!Instant.parse(next.getString("sessionExpiresAt")).isAfter(Instant.now())) throw new IOException("signInRequired");
+            parseGrantTime(next.getString("accessExpiresAt"));
+            if (!parseGrantTime(next.getString("sessionExpiresAt")).isAfter(Instant.now())) throw new IOException("signInRequired");
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key());
             byte[] encrypted = cipher.doFinal(next.toString().getBytes(StandardCharsets.UTF_8));
@@ -181,6 +182,12 @@ final class DiagnosticBroker {
             if (epoch() == expected) failAuth();
             throw new IOException("credentialStorageFailed");
         }
+    }
+
+    static Instant parseGrantTime(String value) {
+        // ASP.NET DateTimeOffset uses numeric offsets; Android's desugared Instant parser
+        // rejects that wire form. Preserve the offset and fractional precision before UTC comparison.
+        return OffsetDateTime.parse(value).toInstant();
     }
 
     private SecretKey key() throws Exception {

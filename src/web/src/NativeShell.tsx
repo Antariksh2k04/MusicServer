@@ -34,7 +34,7 @@ export default function NativeShell({ bridge = nativePlayer }: { bridge?: Native
     if (code === 'cancelled') return;
     setError(code === 'signInRequired' ? 'Sign in required. The native session is unavailable.'
       : code === 'trackUnavailable' ? 'This track is unavailable.'
-        : 'The local request failed. Check the server and USB connection, then retry.');
+        : 'The local request failed. Check the server and wireless debugging connection, then retry.');
   }, []);
 
   const refresh = useCallback(async () => {
@@ -130,7 +130,7 @@ export default function NativeShell({ bridge = nativePlayer }: { bridge?: Native
         <IonContent>
           <main>
             <h1>Android playback experiment</h1>
-            <p className="notice">Development-only: connect the phone over USB to the local server.
+            <p className="notice">Development-only: pair the phone using Wireless debugging and connect to the local server.
               Upload fixtures in the desktop web app, then refresh this list.</p>
             {!bridge ? <p>This screen requires the debug Android APK with its native player.</p> : <>
               {error ? <p role="alert">{error}</p> : null}
