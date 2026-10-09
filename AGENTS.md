@@ -50,7 +50,9 @@ Use Vitest and xUnit; no coverage percentage is required. Name tests by behavior
 
 ## Commit & Pull Request Guidelines
 
-Use imperative commit subjects, such as `Fix Android SDK manager discovery`. PRs describe behavior, requirement IDs, validation, and limitations; link issues and include UI screenshots when applicable.
+Read and follow [gitworkflow.md](gitworkflow.md) before every use of the GitHub MCP integration and before Git operations. It governs branch naming, Conventional Commits, checks, and pull requests. Its GitLab issue examples also apply to GitHub issue numbers; use `frontend`, `backend`, or `fullstack` for this repository. Keep read-only GitHub inspection read-only; branch preparation applies when making changes. Do not push directly to `main` or `dev`.
+
+PRs describe behavior, requirement IDs, validation, and limitations; link issues and include UI screenshots when applicable.
 
 ## Security & Scope
 
