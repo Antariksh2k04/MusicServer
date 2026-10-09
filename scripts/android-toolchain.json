@@ -1,0 +1,14 @@
+{
+  "capacitor": "8.5.2",
+  "androidStudioMinimum": "2025.2.1",
+  "javaMajor": 21,
+  "minSdk": 24,
+  "compileSdk": 36,
+  "targetSdk": 36,
+  "buildTools": "35.0.0",
+  "platformTools": "37.0.1",
+  "androidGradlePlugin": "8.13.0",
+  "gradle": "8.14.3",
+  "kotlin": "2.2.20",
+  "media3": "1.11.1"
+}

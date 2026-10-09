@@ -1,0 +1,76 @@
+name: Android shell bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      free_usage_verified:
+        description: Free quota is available and paid Actions usage is blocked on this account
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-shell-bootstrap
+  cancel-in-progress: true
+
+jobs:
+  shell:
+    if: ${{ inputs.free_usage_verified }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      CAPACITOR_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24.18.0'
+      - uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Check bootstrap contracts
+        run: node --test tests/scripts/android-bootstrap.test.cjs
+      - name: Install selected Android SDK components
+        shell: bash
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;35.0.0"
+          java -version
+          node --version
+          npm --version
+          cat "$ANDROID_HOME/platforms/android-36/source.properties"
+          cat "$ANDROID_HOME/build-tools/35.0.0/source.properties"
+      - name: Generate official pinned shell and genuine dependency lock
+        run: node scripts/bootstrap-android.cjs
+      - name: Build debug APK
+        working-directory: .local/android-bootstrap/android
+        shell: bash
+        run: |
+          bash ./gradlew --version
+          bash ./gradlew --no-daemon --max-workers=2 assembleDebug
+      - name: Package reviewable bootstrap sources and APK
+        shell: bash
+        run: |
+          mkdir -p .local/android-artifact
+          cp .local/android-bootstrap/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug.apk
+          node -e "const fs = require('node:fs'); const p = '.local/android-bootstrap/bootstrap-report.json'; const report = JSON.parse(fs.readFileSync(p, 'utf8')); report.apkBuildVerified = true; fs.writeFileSync(p, JSON.stringify(report, null, 2) + '\n');"
+          tar --exclude=android/.gradle --exclude='*/build' --exclude=android/local.properties \
+            -czf .local/android-artifact/bootstrap-source.tar.gz -C .local/android-bootstrap \
+            android package.json package-lock.json capacitor.config.json bootstrap-report.json
+          cd .local/android-artifact
+          sha256sum music-server-shell-debug.apk bootstrap-source.tar.gz > SHA256SUMS.txt
+          test "$(du -sb . | cut -f1)" -lt 104857600
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: android-shell-${{ github.run_id }}
+          path: .local/android-artifact/*
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
