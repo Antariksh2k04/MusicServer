@@ -55,14 +55,14 @@ jobs:
           cat "$ANDROID_HOME/platforms/android-36/source.properties"
           cat "$ANDROID_HOME/build-tools/35.0.0/source.properties"
       - name: Restore app and sync assets into the checked-in Android project
-        working-directory: src/web
+        working-directory: MusicServerFrontend
         run: |
           npm ci --no-audit --no-fund
           npm test
           npm run build
           npm run android:sync
       - name: Compile both variants and invoke the native unit test task
-        working-directory: src/web/android
+        working-directory: MusicServerFrontend/android
         shell: bash
         run: |
           bash ./gradlew --version
@@ -76,7 +76,7 @@ jobs:
             exit 1
           fi
           mkdir -p .local/android-release-check
-          release_apk=src/web/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          release_apk=MusicServerFrontend/android/app/build/outputs/apk/release/app-release-unsigned.apk
           "$apk_analyzer" manifest print "$release_apk" > .local/android-release-check/manifest.xml
           "$apk_analyzer" dex packages --defined-only "$release_apk" > .local/android-release-check/packages.txt
           node scripts/check-android-release.cjs .local/android-release-check/manifest.xml .local/android-release-check/packages.txt
@@ -84,8 +84,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p .local/android-artifact
-          cp src/web/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
-          cp src/web/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk .local/android-artifact/music-server-shell-debug-tests.apk
+          cp MusicServerFrontend/android/app/build/outputs/apk/debug/app-debug.apk .local/android-artifact/music-server-shell-debug.apk
+          cp MusicServerFrontend/android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk .local/android-artifact/music-server-shell-debug-tests.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug.apk
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose .local/android-artifact/music-server-shell-debug-tests.apk
           node - <<'NODE'

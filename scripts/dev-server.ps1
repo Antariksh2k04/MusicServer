@@ -25,7 +25,7 @@ try {
     $env:Diagnostics__StorageDirectory = Join-Path $repository '.local/media'
     $env:DOTNET_GENERATE_ASPNET_CERTIFICATE = 'false'
     Write-Host 'Starting loopback diagnostics at http://127.0.0.1:5080. Stop with Ctrl+C.'
-    & dotnet run --project (Join-Path $repository 'src/server/MusicServer/MusicServer.csproj') --no-restore --no-launch-profile
+    & dotnet run --project (Join-Path $repository 'MusicServerBackend/MusicServer.WebApi/MusicServer.WebApi.csproj') --no-restore --no-launch-profile
     if ($LASTEXITCODE -ne 0) { throw "Local server exited with code $LASTEXITCODE." }
 }
 finally {

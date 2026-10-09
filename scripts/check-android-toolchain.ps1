@@ -63,7 +63,7 @@ if (-not $buildMatches) { $missing.Add('buildTools35') }
 if (-not $adbMatches) { $missing.Add('platformTools37') }
 foreach ($name in @('core', 'cli', 'android')) {
     $version = $null
-    $manifest = Join-Path $repository ('src/web/node_modules/@capacitor/' + $name + '/package.json')
+    $manifest = Join-Path $repository ('MusicServerFrontend/node_modules/@capacitor/' + $name + '/package.json')
     if (Test-Path -LiteralPath $manifest -PathType Leaf) {
         $version = (Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json).version
     }

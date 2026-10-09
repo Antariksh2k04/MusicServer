@@ -1,5 +1,7 @@
 # Implementation plan — personal music server MVP
 
+> Architecture decision, 2026-10-09: the owner selected EF Core for MySQL persistence and an eLearning-style frontend/layered-backend layout. This supersedes the earlier Dapper/source-path selections below. Current decisions and migration safeguards are maintained in [the active OpenSpec design](openspec/changes/first-music-stream/design.md); this document remains preserved project context.
+
 Status: planning only; no application, experiment, cloud resources, or dependencies have been built/provisioned.
 Date: 2026-10-08. Implementation window: five days, beginning when implementation is separately authorized.
 
