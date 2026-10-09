@@ -74,3 +74,19 @@ Local follow-up checks passed: seven bootstrap/SDK workflow contracts, the nativ
 After following the rebuild/install instructions, the owner reported that APK sign-in is working. Record this as owner-reported diagnostic sign-in success; an installed APK checksum comparison and execution of the three timestamp instrumentation cases remain pending. This does not establish production Google identity, audible seeking, background renewal, or uninterrupted listening.
 
 Next execute track selection/play/pause, forward/backward seeking, the separate 50-second locked native-renewal probe, and uninterrupted >=15-minute listening, followed by the remaining device scenarios in the run guide. Tasks 2.8 and 2.9 remain unchecked; overall progress stays 6/51.
+
+## Owner-reported playback, renewal, and locked listening
+
+2026-10-09: after being asked to run the following three checks, the owner replied "all working". Record the requested checks as passed by owner report, without inventing measurement values:
+
+| Requested check | Result |
+| --- | --- |
+| Play, pause/resume, and forward/backward seek on an uploaded MP3 | Pass (owner-reported) |
+| Separate 50-second locked renewal probe: same player instance, increased native renewals, last HTTP `206` | Pass (owner-reported); exact instance/counter values not supplied |
+| Separate uninterrupted 15-minute locked listening with a sufficiently long track | Pass (owner-reported); fixture and start/end timestamps not supplied |
+
+Authorized read-only ADB inventory confirmed Android `16`, build `B4.1-260812-1729`, security patch `2026-08-01`. This identifies the installed build, not its release-channel/latest-version status or battery settings.
+
+In a follow-up asking about four further groups, the owner replied "yes all ok". Record notification/lock-screen and headset or Bluetooth play/pause, incoming-call or competing-audio handling and headset disconnection, returning without duplicate playback and paused process restart restoring position, and sign-out during playback stopping audio and clearing restoration as owner-reported passes. Exact accessory, interruption type, restart method, and online/offline sign-out conditions were not supplied; do not infer every alternative was exercised.
+
+Still collect representative CBR/indexed/unindexed VBR identities and requested/audible seek measurements, explicit offline logout and remote revocation evidence, timestamp instrumentation results, and cleanup. Keep the full local tasks 2.8/2.9 unchecked until their remaining criteria have evidence. Production Google/MySQL/OCI and public transport retain their own tasks.

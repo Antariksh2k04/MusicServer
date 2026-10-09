@@ -22,7 +22,7 @@ Maintain detailed requirements in OpenSpec; preserve root documents as context. 
 
 Follow the active task groups for execution order: Oracle setup/integration is deferred to the final phase. Local storage evidence does not complete cloud acceptance; retain early physical Android investigation.
 
-The owner cannot use USB with this laptop and confirmed shared Wi-Fi. Use paired wireless ADB with `adb -s <connection-endpoint> reverse tcp:5080 tcp:5080` for the local phone experiment; keep the diagnostic backend on loopback. See `docs/android-local-playback.md`; pairing and physical checks remain pending.
+The owner cannot use USB with this laptop and confirmed shared Wi-Fi. Use paired wireless ADB with `adb -s <connection-endpoint> reverse tcp:5080 tcp:5080` for the local phone experiment; keep the diagnostic backend on loopback. Pairing, sign-in, playback/seek, native renewal, and 15-minute locked listening have owner-reported success. See `docs/android-local-playback.md` and the change's evidence for remaining physical acceptance checks.
 
 ## Build, Test, and Development Commands
 
