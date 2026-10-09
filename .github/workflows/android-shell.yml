@@ -61,7 +61,7 @@ jobs:
           npm test
           npm run build
           npm run android:sync
-      - name: Compile both variants and run native unit tests
+      - name: Compile both variants and invoke the native unit test task
         working-directory: src/web/android
         shell: bash
         run: |
@@ -96,7 +96,8 @@ jobs:
             source: 'checked-in Android project',
             apkBuildVerified: true,
             releaseIsolationVerified: true,
-            nativeUnitTestsVerified: true,
+            // The arithmetic template test was removed; the unit task has no app test cases yet.
+            nativeUnitTestsVerified: false,
             instrumentationCompiled: true,
             connectedDeviceTestsVerified: false,
             physicalDeviceVerified: false,

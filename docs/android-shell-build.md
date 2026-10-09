@@ -4,14 +4,18 @@ The manual **Android shell bootstrap** workflow builds the checked-in Capacitor 
 
 ## Publish and run
 
-Use your normal, non-administrator PowerShell in the repository. Its local Git identity and `origin` are configured for your personal GitHub account; leave global GitLab credentials unchanged. Review `git status --short` before staging. Repository ignores exclude temporary media, tools, credentials, and signing keys.
+Use your normal, non-administrator PowerShell in the repository. Its local Git identity and `origin` are configured for your personal GitHub account; leave global GitLab credentials unchanged. Follow [gitworkflow.md](../gitworkflow.md): update `main` and create a task branch before editing. Review `git status --short` before staging. Repository ignores exclude temporary media, tools, credentials, and signing keys.
 
 ```powershell
+git switch main
+git pull --ff-only origin main
+git switch -c feature/frontend/update-android-shell
+# Make and validate the intended change before staging.
 git add .
 git diff --cached --stat
 git diff --cached --check
-git commit -m "Keep reviewed Android shell sources for future builds"
-git push -u origin main
+git commit -m "feat(frontend): update Android shell"
+git push -u origin feature/frontend/update-android-shell
 ```
 
 Before dispatch, check your account's **Settings → Billing and licensing** for available Actions minutes and storage, including usage by other repositories/Packages. Block paid usage; if a payment method exists, verify applicable budgets stop usage rather than merely notify. Do not run if this cannot be established. GitHub Free currently includes 2,000 minutes/month and 500 MB shared artifact storage; without a valid payment method, usage is blocked at quota. See [GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions). The workflow's timeout and artifact cap do not enforce an account-wide ₹0 budget.
@@ -32,4 +36,6 @@ The original bootstrap artifact's `bootstrap-source.tar.gz` is retained under `.
 
 For optional local compilation after installing the pinned dependencies/JDK/SDK, run `npm --prefix src/web run android:sync`, then run `gradlew.bat assembleDebug` from `src/web/android/`. Sync regenerates plugin configuration and copied web assets while preserving app-owned Java/Kotlin sources. Generated web assets, plugin intermediates, local SDK paths, builds, and signing keys are ignored.
 
-The workflow compiles both variants and debug instrumentation sources, and runs native unit tests. It does not execute connected-device tests. Follow [Local Android playback](android-local-playback.md) for Platform Tools/USB setup, fixtures, native renewal, and the pending phone checks. Oracle remains in the final phase.
+Open a pull request and merge it after review before selecting `main` for the build. To check a proposed change before merging, select its task branch for the manual workflow.
+
+The workflow compiles both variants and debug instrumentation sources and invokes the native unit test task. The unused arithmetic template test has been removed; no app-specific native unit test cases exist yet, so `nativeUnitTestsVerified` remains false. It does not execute connected-device tests. Follow [Local Android playback](android-local-playback.md) for Platform Tools/USB setup, fixtures, native renewal, and the pending phone checks. Oracle remains in the final phase.

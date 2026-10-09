@@ -1,24 +1,51 @@
+# Dependencies and build outputs
 node_modules/
 dist/
 dist-native/
 bin/
 obj/
+build/
+.gradle/
+.kotlin/
+
+# Local tools, experiments, and test reports
 .tools/
 .local/
 TestResults/
 playwright-report/
+coverage/
+*.log
+
+# Local configuration and credentials
 .env
 .env.*
 !.env.example
+!.env.*.example
 appsettings.*.local.json
-*.mp3
-*.keystore
-*.pfx
-*.pem
-*.jks
-*.apk
-*.aab
+local.properties
+signing.properties
+key.properties
 .oci/
 .aws/
-.gradle/
-local.properties
+*.keystore
+*.pfx
+*.p12
+*.pem
+*.key
+*.jks
+
+# Personal media and packaged applications
+*.mp3
+*.apk
+*.aab
+
+# Editor and operating-system state
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
+Thumbs.db
+Desktop.ini
