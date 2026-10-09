@@ -23,6 +23,8 @@ Later owner confirmation: the debug empty shell from run `37897504459` installs 
 
 Use official Android platform tools and the owner's trusted computer/USB pairing. The [Android adb guide](https://developer.android.com/tools/adb) describes debugging authorization and selecting a hardware device. Do not commit serials, account identifiers, call details, or signing keys. Inspect device presence locally; do not paste `adb devices` output into committed evidence.
 
+2026-10-09 transport update: the owner cannot connect this laptop by USB and confirmed the phone/laptop can share Wi-Fi. Use the paired wireless ADB procedure in [the local playback guide](../../../../docs/android-local-playback.md), with its explicit `-s` endpoint selector instead of the USB-only `-d` examples below. Actual pairing, reverse mapping, normal locked-screen connection stability, and physical playback remain unverified. Platform Tools are still absent from this laptop's PATH and workspace tools inventory.
+
 With exactly one authorized hardware device, these read-only commands can capture noncredential build fields:
 
 ```powershell

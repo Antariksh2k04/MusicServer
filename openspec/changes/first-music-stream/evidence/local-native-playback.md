@@ -1,6 +1,6 @@
 # Local native playback — tasks 2.8 and 2.9
 
-2026-10-09: **prototype source and local automated checks prepared; native compilation and physical playback remain unverified.** Neither task is checked complete. Overall progress remains 6/51. The owner reports CMF Phone 2 Pro / Android 16; exact OS/build and USB/device access are pending. Oracle remains in groups 7–8.
+2026-10-09 current status: **native debug/release and instrumentation compilation plus release isolation passed on the hosted runner; physical playback remains unverified.** Neither task is checked complete. Overall progress remains 6/51. The owner reports CMF Phone 2 Pro / Android 16 and cannot use USB with this laptop; shared Wi-Fi is confirmed, and wireless ADB pairing/device checks are pending. Oracle remains in groups 7–8. The initial preparation notes below describe checks before the hosted follow-up recorded at the end.
 
 ## Implemented experiment boundary
 
@@ -46,3 +46,11 @@ The generated Cordova test classpath mixed `kotlin-stdlib:1.8.22` with the pre-m
 Cleanup PR #1 removed the unused arithmetic unit-test template. The Gradle unit task remains in the workflow, but `nativeUnitTestsVerified` is false while no app-specific native unit cases exist. Instrumentation sources and release-isolation checks remain intact.
 
 The alignment change still requires a fresh manual workflow run on its new commit. Re-running the failed run would rebuild its old commit. No physical playback result or task 2.8/2.9 completion is implied by preparing this fix.
+
+## Successful hosted follow-up and wireless preparation
+
+Verified [run 37917216254](https://github.com/Antariksh2k04/MusicServer/actions/runs/37917216254) on `bugfix/frontend/fix-android-kotlin-alignment`, commit `78658c7c653292527c3e749874e49004d8b9a9f6`. SDK setup, frontend restore/checks, native compilation, release diagnostic isolation, and debug APK packaging/upload completed successfully. The Kotlin alignment fixed the generated Cordova duplicate-class failure. This is real hosted build evidence, not device execution. The unit task has no app-specific test cases and its report flag remains false.
+
+The available artifact is `android-shell-37917216254`, artifact ID `11610307086`, ZIP size 8,869,576 bytes, expiring `2026-10-10T10:26:37Z`. GitHub reports ZIP digest `sha256:2f441ab84b04c341555d3862ccb23204242204edc0e7151d9da24241749a5acf`; this is not the APK's own digest. The expected APK file is `music-server-shell-debug.apk`. Phone installation, APK checksum comparison, and audible/background checks remain pending.
+
+The owner confirmed shared Wi-Fi and approved replacing USB-only planning wording with authorized paired wireless ADB. The application code and fixed loopback API are unchanged; only the debugging transport differs. Use the updated run guide's separate pairing/connection ports and explicit `-s` selector. Confirm `get-state`, the one reverse mapping, and stable connectivity under normal battery settings before interpreting playback results. A wireless tunnel does not establish production network handover or cloud acceptance. Tasks 2.8 and 2.9 remain unchecked.
