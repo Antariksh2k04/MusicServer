@@ -36,11 +36,19 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Check bootstrap contracts
-        run: node --test tests/scripts/android-bootstrap.test.cjs
+        run: node --test tests/scripts/android-bootstrap.test.cjs tests/scripts/android-sdk-workflow.test.cjs
       - name: Install selected Android SDK components
         shell: bash
         run: |
-          sdkmanager --install "platforms;android-36" "build-tools;35.0.0"
+          sdk_manager="${ANDROID_HOME:?ANDROID_HOME must point to the Android SDK}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$sdk_manager" ] && [ -d "$ANDROID_HOME/cmdline-tools" ]; then
+            sdk_manager="$(find "$ANDROID_HOME/cmdline-tools" -mindepth 3 -maxdepth 3 -type f -name sdkmanager -executable -print -quit)"
+          fi
+          if [ -z "$sdk_manager" ] || [ ! -x "$sdk_manager" ]; then
+            echo "::error::Android SDK Command-line Tools not found"
+            exit 1
+          fi
+          "$sdk_manager" --sdk_root="$ANDROID_HOME" --install "platforms;android-36" "build-tools;35.0.0"
           java -version
           node --version
           npm --version
