@@ -10,5 +10,6 @@
   "androidGradlePlugin": "8.13.0",
   "gradle": "8.14.3",
   "kotlin": "2.2.20",
+  "kotlinStdlib": "1.8.22",
   "media3": "1.11.1"
 }

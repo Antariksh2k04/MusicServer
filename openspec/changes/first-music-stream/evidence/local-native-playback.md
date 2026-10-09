@@ -36,3 +36,13 @@ Self-review corrected stale-session auth responses, signed-out heartbeats cancel
 Follow [the run guide](../../../../docs/android-local-playback.md) for exact build/USB/fixture commands and redacted recording. Add the new workflow commit/run/APK hash and observed renewal/range/instance values after the owner installs it. Add each physical scenario's times and pass/fail, requested/audible seek positions, accessory/call and normal battery settings. Keep private identifiers/media/tokens out of evidence. Revoke sessions and remove only owned fixture/mapping resources after testing.
 
 USB evidence will not satisfy public HTTPS, OCI/private cloud behavior, Wi-Fi/mobile-data recovery, Google identity, MySQL durability, release signing, or the full-MVP multi-track gate. Those retain their independent tasks.
+
+## Hosted build failure and dependency alignment
+
+2026-10-09: [run 37915340742](https://github.com/Antariksh2k04/MusicServer/actions/runs/37915340742), commit `f76bd003400cdfe8b9bffbbabc50111648a4fb32`, passed SDK installation, dependency restore, frontend checks, and Capacitor sync. Its log shows app debug Java and app instrumentation Java compilation and duplicate-class checks completed, but the overall native build failed at `:capacitor-cordova-android-plugins:checkDebugAndroidTestDuplicateClasses`. Packaging and upload were skipped; this run produced no downloadable APK. Release compilation/isolation and device execution are not established by those partial steps.
+
+The generated Cordova test classpath mixed `kotlin-stdlib:1.8.22` with the pre-merge `kotlin-stdlib-jdk7/jdk8:1.6.21`, duplicating standard-library classes. Apply Kotlin BOM `1.8.22` to implementation and Android instrumentation dependencies of every Android application/library module through the checked-in root Gradle build. This covers regenerated Cordova modules without editing generated files or disabling duplicate-class checks. The runtime pin is distinct from the previously selected future Kotlin compiler version; this Java prototype does not add a Kotlin compiler plugin. See [Kotlin's alignment guidance](https://kotlinlang.org/docs/whatsnew18.html#usage-of-the-latest-kotlin-stdlib-version-in-transitive-dependencies).
+
+Cleanup PR #1 removed the unused arithmetic unit-test template. The Gradle unit task remains in the workflow, but `nativeUnitTestsVerified` is false while no app-specific native unit cases exist. Instrumentation sources and release-isolation checks remain intact.
+
+The alignment change still requires a fresh manual workflow run on its new commit. Re-running the failed run would rebuild its old commit. No physical playback result or task 2.8/2.9 completion is implied by preparing this fix.
