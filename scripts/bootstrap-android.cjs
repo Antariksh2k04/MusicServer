@@ -40,7 +40,7 @@ function main() {
   }
   const root = resolve(__dirname, '..');
   const pins = JSON.parse(readFileSync(resolve(root, 'scripts/android-toolchain.json'), 'utf8'));
-  const web = resolve(root, 'src/web');
+  const web = resolve(root, 'MusicServerFrontend');
   const stage = resolve(root, '.local/android-bootstrap');
   // Refuse reuse rather than deleting or overwriting a previous bootstrap.
   if (existsSync(stage)) throw new Error('Bootstrap directory already exists; use a fresh checkout');

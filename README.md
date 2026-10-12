@@ -1,6 +1,10 @@
 # Music Server
 
-Ionic React and ASP.NET Core local streaming experiment for the active OpenSpec change `first-music-stream`, with a Capacitor/Media3 Android debug prototype awaiting native build and physical validation. Production Google identity, MySQL persistence, and OCI storage remain pending.
+Personal music server using Ionic React and ASP.NET Core, developed through the active OpenSpec change `first-music-stream`. The local browser/Android diagnostic prototype works with owner-reported physical playback checks; full scenario measurements remain tracked in its evidence. Product Google identity, EF Core/MySQL persistence, and OCI storage remain pending.
+
+## Repository organization
+
+`MusicServerFrontend/` contains the Ionic/Capacitor client. `MusicServerBackend/MusicServer.sln` contains WebApi, Application, Domain, Infrastructure, and Tests projects. See [project structure](docs/project-structure.md) for layer responsibilities and the mapping from the old prototype paths. Root planning documents remain preserved; OpenSpec governs active requirements and architecture.
 
 ## Build
 
@@ -9,12 +13,12 @@ Prerequisites: .NET SDK 10.0.401 and Node 24.18.0/npm 11.16.0 (or compatible ver
 From the repository root:
 
 ```powershell
-dotnet restore tests/server/MusicServer.Tests/MusicServer.Tests.csproj
-dotnet build tests/server/MusicServer.Tests/MusicServer.Tests.csproj --no-restore
-dotnet test tests/server/MusicServer.Tests/MusicServer.Tests.csproj --no-restore
-npm --prefix src/web ci
-npm --prefix src/web run build
-npm --prefix src/web test
+dotnet restore MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj
+dotnet build MusicServerBackend/MusicServer.sln --no-restore
+dotnet test MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj --no-restore
+npm --prefix MusicServerFrontend ci
+npm --prefix MusicServerFrontend run build
+npm --prefix MusicServerFrontend test
 ```
 
 Dependency versions are pinned in project/package files; npm's lockfile pins transitive dependencies. This environment can use ignored workspace caches for offline restore. See the change's local-development evidence for the exact commands used here.
@@ -32,7 +36,7 @@ After restoring dependencies, start the backend from the root:
 Enter a private 32–256 character operator key at the hidden prompt; use the same key in the browser's diagnostic sign-in. The script keeps configuration in process environment variables and restores previous values on exit. It never writes or displays the key. Stop the server with Ctrl+C. Start the frontend in another terminal:
 
 ```powershell
-npm --prefix src/web run dev
+npm --prefix MusicServerFrontend run dev
 ```
 
 Open `http://127.0.0.1:5173`. The Vite proxy sends `/api` to the loopback backend at port 5080. Diagnostic APIs live under `/api/v1/diagnostics`; the production health-readiness endpoint remains `503` until real dependencies exist.
@@ -41,7 +45,7 @@ Personal audio belongs only in ignored `.local/` storage, never frontend public 
 
 Select **Upload**, choose one MP3, and wait for confirmation. Return to **Library**, select the fixture, press **Play**, and seek after duration loads. Switching views preserves the player. Reloading restores selection/position paused while the fixture and diagnostic session still exist. **Reload track** rechecks session/availability and loads paused. A failed or cancelled upload is never presented as confirmed saved; refresh before retrying an ambiguous transfer.
 
-The local probe checks MP3 frame structure and supplies filename/unknown-tag fallbacks. Embedded metadata extraction remains a production task. This browser experiment has no cloud access, database, or Google login. The separate Android debug prototype uses a native background service; follow [Local Android playback](docs/android-local-playback.md) to build and test it through paired wireless ADB and a loopback reverse mapping. USB is optional where available. Playback on the physical phone has not yet been verified.
+The local probe checks MP3 frame structure and supplies filename/unknown-tag fallbacks. Embedded metadata extraction remains a production task. This browser experiment has no cloud access, database, or Google login. The separate Android debug prototype uses a native background service; follow [Local Android playback](docs/android-local-playback.md) to build and test it through paired wireless ADB and a loopback reverse mapping. USB is optional where available. Owner-reported physical passes and remaining measurements are recorded in [native playback evidence](openspec/changes/first-music-stream/evidence/local-native-playback.md).
 
 ## Local configuration and limits
 
@@ -73,7 +77,7 @@ These commands report available local tooling/configuration and validate probe i
 
 ## Android setup status
 
-The owner selected remote compilation. Successful run `37897504459` produced the empty shell APK; its hashes and source manifest/template pins were checked locally, and the owner confirmed installation/launch on the CMF phone. The reviewed project and real Capacitor lockfile are now under `src/web/`. The debug prototype now adds Media3 playback and native diagnostic authority, awaiting a new native build and physical checks. Follow [Remote Android shell build](docs/android-shell-build.md), then [Local Android playback](docs/android-local-playback.md). The separate Ionic entry builds with `npm --prefix src/web run build:native-shell`; it does not load browser diagnostics/audio. The owner reports Android 16; exact Nothing OS/build, the full toolchain/host gate, and native playback acceptance remain pending.
+The owner selected remote compilation. Successful run `37897504459` established the empty shell; later run `37934530094` compiled the native playback/timestamp fix and packaged matching app/test APKs. The owner reported working sign-in, playback/seek, locked renewal/listening, controls, interruption, restart, and sign-out groups on the CMF phone. Read the evidence for unrecorded variants and remaining acceptance checks. The reviewed project and real Capacitor lockfile now live under `MusicServerFrontend/`; moving it does not change its Android package ID or prove a new native build. Follow [Remote Android shell build](docs/android-shell-build.md), then [Local Android playback](docs/android-local-playback.md). The separate Ionic entry builds with `npm --prefix MusicServerFrontend run build:native-shell`; it does not load browser diagnostics/audio.
 
 Task 1.4 has selected native versions in `scripts/android-toolchain.json`. Java/SDK are not installed locally; Capacitor 8.5.2 is pinned in the checked-in package manifest/lockfile but has not been restored on this PC. For optional local compilation, install [Android Studio](https://developer.android.com/studio) 2025.2.1 or newer, select Gradle JDK 21, and use SDK Manager for Platform 36, Build Tools 35.0.0, and Platform Tools 37.0.1. Then check local metadata:
 
@@ -84,6 +88,6 @@ node --test tests/scripts/android-toolchain.test.cjs
 # ./scripts/check-android-toolchain.ps1 -JdkDirectory $env:JAVA_HOME -SdkDirectory $env:ANDROID_HOME
 ```
 
-The inventory does not execute tools, accept licences, or verify an APK. Registry access remains blocked locally; the runner restores the reviewed Capacitor dependencies from the genuine lockfile. See [toolchain evidence](openspec/changes/first-music-stream/evidence/toolchain.md) for pins and [remote bootstrap evidence](openspec/changes/first-music-stream/evidence/android-shell-bootstrap.md) for executed checks and remaining gates. These prerequisites do not require Oracle. `ionic serve`/Vite runs the browser client; `npm --prefix src/web run android:sync` prepares the existing native project after restoring dependencies. Local native open/run commands still need appropriate tooling. Local Platform Tools and an authorized wireless or USB ADB connection are needed for the early loopback playback experiment.
+The inventory does not execute tools, accept licences, or verify an APK. Registry access remains blocked locally; the runner restores the reviewed Capacitor dependencies from the genuine lockfile. See [toolchain evidence](openspec/changes/first-music-stream/evidence/toolchain.md) for pins and [remote bootstrap evidence](openspec/changes/first-music-stream/evidence/android-shell-bootstrap.md) for executed checks and remaining gates. These prerequisites do not require Oracle. `ionic serve`/Vite runs the browser client; `npm --prefix MusicServerFrontend run android:sync` prepares the existing native project after restoring dependencies. Local native open/run commands still need appropriate tooling. Local Platform Tools and an authorized wireless or USB ADB connection are needed for the early loopback playback experiment.
 
 Read `AGENTS.md` and the active change's proposal/specs/design/tasks before contributing. Root FRS/SDS documents are project context; OpenSpec owns detailed active requirements. See `openspec/changes/first-music-stream/evidence/` for validation and remaining gates.

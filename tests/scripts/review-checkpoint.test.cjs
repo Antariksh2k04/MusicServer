@@ -21,6 +21,20 @@ test('checkpoints retain exact source and compare additions, edits, and deletion
   fs.writeFileSync(path.join(root, '.env'), 'do not capture');
   fs.writeFileSync(path.join(root, 'private.pem'), 'do not capture');
   fs.writeFileSync(path.join(root, 'appsettings.debug.local.json'), 'do not capture');
+  const productFiles = {
+    'MusicServerBackend/MusicServer.WebApi/Program.cs': 'backend source',
+    'MusicServerFrontend/src/features/playback/player.ts': 'frontend source',
+    'docs/project-structure.md': 'structure guide',
+    '.github/workflows/android-shell.yml': 'workflow source',
+  };
+  for (const [name, content] of Object.entries(productFiles)) {
+    fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true });
+    fs.writeFileSync(path.join(root, name), content);
+  }
+  for (const name of ['MusicServerFrontend/dist-native/generated.js', 'MusicServerBackend/MusicServer.WebApi/obj/generated.cs']) {
+    fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true });
+    fs.writeFileSync(path.join(root, name), 'do not capture');
+  }
   function run(command) {
     return JSON.parse(execFileSync(process.execPath, [path.join(root, 'scripts/review-checkpoint.cjs'), command], { encoding: 'utf8', windowsHide: true }));
   }
@@ -29,14 +43,21 @@ test('checkpoints retain exact source and compare additions, edits, and deletion
   assert.deepEqual(run('compare').changes, []);
   const originals = path.join(root, '.local/review/checkpoints', saved.checkpoint, 'files');
   assert.equal(fs.readFileSync(path.join(originals, 'A.md'), 'utf8'), 'original');
+  for (const [name, content] of Object.entries(productFiles)) {
+    assert.equal(fs.readFileSync(path.join(originals, name), 'utf8'), content);
+  }
+  assert.equal(fs.existsSync(path.join(originals, 'MusicServerFrontend/dist-native/generated.js')), false);
+  assert.equal(fs.existsSync(path.join(originals, 'MusicServerBackend/MusicServer.WebApi/obj/generated.cs')), false);
   for (const name of ['.env', 'private.pem', 'appsettings.debug.local.json']) {
     assert.equal(fs.existsSync(path.join(originals, name)), false);
   }
   fs.writeFileSync(path.join(root, 'A.md'), 'edited');
   fs.writeFileSync(path.join(root, 'B.md'), 'added');
   fs.unlinkSync(path.join(root, 'C.md'));
+  fs.writeFileSync(path.join(root, 'MusicServerBackend/MusicServer.WebApi/Program.cs'), 'backend edit');
   assert.deepEqual(run('compare').changes, [
     { file: 'A.md', kind: 'modified' }, { file: 'B.md', kind: 'added' }, { file: 'C.md', kind: 'deleted' },
+    { file: 'MusicServerBackend/MusicServer.WebApi/Program.cs', kind: 'modified' },
   ]);
   run('capture');
   assert.deepEqual(run('compare').changes, []);

@@ -8,8 +8,8 @@ const pointer = path.join(review, 'last-review.json');
 const extensions = new Set(['.md', '.cs', '.csproj', '.props', '.targets', '.sln', '.slnx',
   '.ts', '.tsx', '.js', '.jsx', '.cjs', '.mjs', '.json', '.css', '.html', '.ps1', '.yaml', '.yml',
   '.kt', '.java', '.xml', '.gradle', '.kts', '.properties', '.sql', '.cmd']);
-const excludedDirectories = new Set(['node_modules', 'bin', 'obj', 'dist', '.git', '.local',
-  '.tools', '.gradle', 'build', 'TestResults', 'playwright-report']);
+const excludedDirectories = new Set(['node_modules', 'bin', 'obj', 'dist', 'dist-native', '.git', '.local',
+  '.tools', '.gradle', '.kotlin', 'build', 'TestResults', 'playwright-report', 'coverage']);
 const files = {};
 const skipped = [];
 function visit(relative) {
@@ -32,7 +32,7 @@ function visit(relative) {
 for (const name of fs.readdirSync(root).sort()) {
   if (fs.lstatSync(path.join(root, name)).isFile()) visit(name);
 }
-for (const dir of ['src', 'tests', 'scripts', 'openspec']) {
+for (const dir of ['MusicServerFrontend', 'MusicServerBackend', 'src', 'tests', 'scripts', 'docs', '.github', 'openspec']) {
   if (fs.existsSync(path.join(root, dir))) visit(dir);
 }
 const command = process.argv[2];

@@ -4,11 +4,12 @@
 
 The local experiment lives alongside project context: `spec.md`, `FRS.md`, `SDS-FE.md`, `SDS-BE.md`, and `implementation_plan.md`. Production integrations remain pending; `plan.md` is absent.
 
-- `src/web/`: Ionic React UI, browser audio controller, and Vitest tests beside source.
-- `src/web/android/`: reviewed Capacitor Android project; generated assets/build outputs are ignored.
-- `src/web/android/app/src/debug/`: local Media3 service/broker/plugin and loopback network allowance; excluded from release.
-- `src/server/MusicServer/`: ASP.NET Core diagnostics, bounded streaming, and provider contracts/adapters under `Storage/`.
-- `tests/server/MusicServer.Tests/`: xUnit HTTP integration and cancellation tests.
+- `MusicServerFrontend/`: Ionic React UI; `src/app/` composes screens, `src/features/playback/` owns browser/native controllers, and `src/lib/diagnostics/` holds the temporary diagnostic API. Tests live in nearby `__tests__/` folders; shared test helpers/types live under `testing/` and `types/`.
+- `MusicServerFrontend/android/`: reviewed Capacitor Android project; generated assets/build outputs are ignored.
+- `MusicServerFrontend/android/app/src/debug/`: local Media3 service/broker/plugin and loopback network allowance; excluded from release.
+- `MusicServerBackend/MusicServer.sln`: layered backend solution. WebApi hosts HTTP/diagnostics; Application owns streaming/storage contracts; Domain holds shared domain data; Infrastructure implements private storage and will own EF Core persistence.
+- `MusicServerBackend/MusicServer.Tests/`: xUnit checks organized under `Unit/`, `Integration/`, and `Shared/`.
+- `docs/project-structure.md`: layer responsibilities, dependency rules, and the path mapping from the prototype.
 - `scripts/dev-server.ps1`: explicitly configured loopback startup; `.local/` holds ignored temporary media.
 - `.github/workflows/android-shell.yml`: manual remote Android bootstrap; `docs/android-shell-build.md` explains its artifacts and installation check.
 
@@ -28,23 +29,23 @@ The owner cannot use USB with this laptop and confirmed shared Wi-Fi. Use paired
 
 Run from the root; see `README.md` for prerequisites:
 
-- `dotnet restore tests/server/MusicServer.Tests/MusicServer.Tests.csproj`: restore backend/test dependencies.
-- `dotnet build tests/server/MusicServer.Tests/MusicServer.Tests.csproj --no-restore`: compile both projects.
-- `dotnet test tests/server/MusicServer.Tests/MusicServer.Tests.csproj --no-restore`: backend checks.
-- `npm --prefix src/web ci`: install locked frontend dependencies.
-- `npm --prefix src/web run build` / `npm --prefix src/web test`: typecheck/build or Vitest.
+- `dotnet restore MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj`: restore backend/test dependencies.
+- `dotnet build MusicServerBackend/MusicServer.sln --no-restore`: compile the layered solution and tests.
+- `dotnet test MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj --no-restore`: backend checks.
+- `npm --prefix MusicServerFrontend ci`: install locked frontend dependencies.
+- `npm --prefix MusicServerFrontend run build` / `npm --prefix MusicServerFrontend test`: typecheck/build or Vitest.
 - `node --test tests/scripts/prerequisites.test.cjs`: read-only prerequisite tool contracts.
 - `./scripts/check-android-toolchain.ps1` / `node --test tests/scripts/android-toolchain.test.cjs`: native tool inventory/contracts; no APK build or phone verification.
-- `npm --prefix src/web run build:native-shell` / `node --test tests/scripts/android-bootstrap.test.cjs`: isolated shell assets/bootstrap contracts; no native playback evidence.
-- `npm --prefix src/web run android:sync`: build shell assets and sync the existing native project; never regenerate it with `cap add`.
-- From `src/web/android`, `./gradlew.bat testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease`: compile native variants/tests with installed tooling. Physical checks follow `docs/android-local-playback.md`.
-- `./scripts/dev-server.ps1` and `npm --prefix src/web run dev`: start backend and frontend in separate terminals.
+- `npm --prefix MusicServerFrontend run build:native-shell` / `node --test tests/scripts/android-bootstrap.test.cjs`: isolated shell assets/bootstrap contracts; no native playback evidence.
+- `npm --prefix MusicServerFrontend run android:sync`: build shell assets and sync the existing native project; never regenerate it with `cap add`.
+- From `MusicServerFrontend/android`, `./gradlew.bat testDebugUnitTest assembleDebug assembleDebugAndroidTest assembleRelease`: compile native variants/tests with installed tooling. Physical checks follow `docs/android-local-playback.md`.
+- `./scripts/dev-server.ps1` and `npm --prefix MusicServerFrontend run dev`: start backend and frontend in separate terminals.
 
 No lint command is configured. Never report unexecuted checks as passed.
 
 ## Coding Style & Naming Conventions
 
-Use two spaces for TypeScript/TSX; four for C#/Kotlin. Use PascalCase components/types, camelCase variables, and C# Async suffixes. Parameterize SQL; keep transactions short. TypeScript is strict; .NET warnings are errors. Formatters are not configured.
+Use two spaces for TypeScript/TSX; four for C#/Kotlin. Use PascalCase components/types, camelCase variables, and C# Async suffixes. Product persistence uses EF Core with MySQL; put contexts/mappings/migrations in Infrastructure, keep transactions short, and parameterize any required SQL. TypeScript is strict; .NET warnings are errors. Formatters are not configured.
 
 ## Testing Guidelines
 
