@@ -32,7 +32,7 @@ function visit(relative) {
 for (const name of fs.readdirSync(root).sort()) {
   if (fs.lstatSync(path.join(root, name)).isFile()) visit(name);
 }
-for (const dir of ['MusicServerFrontend', 'MusicServerBackend', 'src', 'tests', 'scripts', 'docs', '.github', 'openspec']) {
+for (const dir of ['MusicServerFrontend', 'MusicServerBackend', 'src', 'tests', 'scripts', 'docs', '.config', '.github', 'openspec']) {
   if (fs.existsSync(path.join(root, dir))) visit(dir);
 }
 const command = process.argv[2];
