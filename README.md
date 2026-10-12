@@ -1,6 +1,6 @@
 # Music Server
 
-Personal music server using Ionic React and ASP.NET Core, developed through the active OpenSpec change `first-music-stream`. The local browser/Android diagnostic prototype works with owner-reported physical playback checks; full scenario measurements remain tracked in its evidence. Product Google identity, EF Core/MySQL persistence, and OCI storage remain pending.
+Personal music server using Ionic React and ASP.NET Core, developed through the active OpenSpec change `first-music-stream`. The local browser/Android diagnostic prototype works with owner-reported physical playback checks; full scenario measurements remain tracked in its evidence. EF Core code-first schema and migration tooling are prepared; real MySQL verification, product Google identity, and OCI storage remain pending. See [database setup and migrations](docs/database-migrations.md) to add the connection later.
 
 ## Repository organization
 

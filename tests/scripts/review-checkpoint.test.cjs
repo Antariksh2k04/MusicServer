@@ -26,6 +26,7 @@ test('checkpoints retain exact source and compare additions, edits, and deletion
     'MusicServerFrontend/src/features/playback/player.ts': 'frontend source',
     'docs/project-structure.md': 'structure guide',
     '.github/workflows/android-shell.yml': 'workflow source',
+    '.config/dotnet-tools.json': 'tool manifest',
   };
   for (const [name, content] of Object.entries(productFiles)) {
     fs.mkdirSync(path.dirname(path.join(root, name)), { recursive: true });

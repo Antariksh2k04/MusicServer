@@ -1,0 +1,5 @@
+{
+    "sha256":  "058a65f3211e80f8c12e7e7f6e9161ed20c78a35690d01770425f6fc53ab835a",
+    "version":  1,
+    "migrationId":  "20261012061305_InitialMusicSchema"
+}
