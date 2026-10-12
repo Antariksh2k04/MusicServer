@@ -7,7 +7,7 @@ The local experiment lives alongside project context: `spec.md`, `FRS.md`, `SDS-
 - `MusicServerFrontend/`: Ionic React UI; `src/app/` composes screens, `src/features/playback/` owns browser/native controllers, and `src/lib/diagnostics/` holds the temporary diagnostic API. Tests live in nearby `__tests__/` folders; shared test helpers/types live under `testing/` and `types/`.
 - `MusicServerFrontend/android/`: reviewed Capacitor Android project; generated assets/build outputs are ignored.
 - `MusicServerFrontend/android/app/src/debug/`: local Media3 service/broker/plugin and loopback network allowance; excluded from release.
-- `MusicServerBackend/MusicServer.sln`: layered backend solution. WebApi hosts HTTP/diagnostics; Application owns streaming/storage contracts; Domain holds shared domain data; Infrastructure implements private storage and will own EF Core persistence.
+- `MusicServerBackend/MusicServer.sln`: layered backend solution. WebApi hosts HTTP/diagnostics and explicit operator commands; Application owns streaming/storage contracts; Domain holds entities; Infrastructure implements private storage and EF Core persistence/migrations.
 - `MusicServerBackend/MusicServer.Tests/`: xUnit checks organized under `Unit/`, `Integration/`, and `Shared/`.
 - `docs/project-structure.md`: layer responsibilities, dependency rules, and the path mapping from the prototype.
 - `scripts/dev-server.ps1`: explicitly configured loopback startup; `.local/` holds ignored temporary media.
@@ -32,6 +32,7 @@ Run from the root; see `README.md` for prerequisites:
 - `dotnet restore MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj`: restore backend/test dependencies.
 - `dotnet build MusicServerBackend/MusicServer.sln --no-restore`: compile the layered solution and tests.
 - `dotnet test MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj --no-restore`: backend checks.
+- `dotnet run --project MusicServerBackend/MusicServer.WebApi --no-build --no-restore -- database verify-artifact`: offline SQL checksum check; see `docs/database-migrations.md` before explicit database operations. Never migrate automatically on API startup.
 - `npm --prefix MusicServerFrontend ci`: install locked frontend dependencies.
 - `npm --prefix MusicServerFrontend run build` / `npm --prefix MusicServerFrontend test`: typecheck/build or Vitest.
 - `node --test tests/scripts/prerequisites.test.cjs`: read-only prerequisite tool contracts.

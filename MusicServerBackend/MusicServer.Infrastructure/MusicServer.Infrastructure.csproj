@@ -2,10 +2,19 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>MusicServer</RootNamespace>
+    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11" PrivateAssets="all" />
+    <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.9" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="../MusicServer.Application/MusicServer.Application.csproj" />
     <ProjectReference Include="../MusicServer.Domain/MusicServer.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Persistence/Sql/*.sql" />
+    <EmbeddedResource Include="Persistence/Sql/*.json" />
   </ItemGroup>
 </Project>
