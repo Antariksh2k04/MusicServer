@@ -3,6 +3,34 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using MusicServer.Diagnostics;
 using MusicServer.Storage;
+using MusicServer.Infrastructure.Persistence;
+
+if (args.Length > 0 && args[0] == "database")
+{
+    if (args.Length != 2 || args[1] is not ("verify-artifact" or "inspect" or "apply"))
+    {
+        Console.Error.WriteLine("Usage: database verify-artifact|inspect|apply");
+        Environment.ExitCode = 2;
+        return;
+    }
+    try
+    {
+        if (args[1] == "verify-artifact")
+        {
+            var artifact = MigrationArtifact.Initial();
+            Console.WriteLine($"Migration {artifact.Version}: {artifact.MigrationId}; SQL checksum verified (offline).");
+        }
+        else Console.WriteLine(await new DatabaseMigrator().RunAsync(
+            Environment.GetEnvironmentVariable("ConnectionStrings__MusicServerMigration"), args[1] == "apply"));
+    }
+    catch (Exception exception)
+    {
+        // Provider exceptions can expose connection details or parameter values; keep credentials out of logs.
+        Console.Error.WriteLine(MigrationDiagnostics.Describe(exception));
+        Environment.ExitCode = 1;
+    }
+    return;
+}
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
