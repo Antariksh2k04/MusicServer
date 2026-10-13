@@ -4,6 +4,15 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using MusicServer.Diagnostics;
 using MusicServer.Storage;
 using MusicServer.Infrastructure.Persistence;
+using MusicServer.Application.Auth;
+using MusicServer.Infrastructure.Auth;
+using MusicServer.Operators;
+
+if (args.Length > 0 && args[0] == "owner")
+{
+    Environment.ExitCode = await OwnerCommands.RunAsync(args.Skip(1).ToArray());
+    return;
+}
 
 if (args.Length > 0 && args[0] == "database")
 {
@@ -33,6 +42,12 @@ if (args.Length > 0 && args[0] == "database")
 }
 
 var builder = WebApplication.CreateBuilder(args);
+var googleConfiguration = builder.Configuration.GetSection("Auth:Google").Get<GoogleClientConfiguration>() ?? new();
+builder.Services.AddSingleton(googleConfiguration);
+builder.Services.AddScoped<IOwnerIdentityStore>(services => new ConfiguredOwnerIdentityStore(
+    builder.Configuration.GetConnectionString("MusicServer"), services.GetRequiredService<TimeProvider>()));
+builder.Services.AddScoped<OwnerReadiness>();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.WebHost.ConfigureKestrel(options =>
@@ -53,7 +68,6 @@ if (diagnosticMode)
     if (string.IsNullOrWhiteSpace(diagnostics.StorageDirectory))
         diagnostics.StorageDirectory = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, "../../.local/media"));
     builder.Services.AddSingleton(diagnostics);
-    builder.Services.AddSingleton(TimeProvider.System);
     builder.Services.AddSingleton<DiagnosticSessions>();
     builder.Services.AddSingleton<DiagnosticNativeSessions>();
     builder.Services.AddSingleton<IObjectStore>(services => new LocalFileObjectStore(
@@ -81,8 +95,15 @@ if (diagnosticMode)
 }
 var app = builder.Build();
 app.MapGet("/api/v1/health/live", () => Results.Ok(new { status = "live" }));
-app.MapGet("/api/v1/health/ready", () => Results.Json(
-    new { status = "unavailable", code = "dependenciesNotConfigured" }, statusCode: 503));
+app.MapGet("/api/v1/health/ready", async (OwnerReadiness owner, CancellationToken cancellationToken) =>
+{
+    var ownerReady = await owner.IsReadyAsync(cancellationToken);
+    // Product app sessions/import/storage are implemented in subsequent tasks. Configuration cannot bypass them.
+    var remainingCapabilitiesReady = false;
+    return ownerReady && remainingCapabilitiesReady
+        ? Results.Json(new { status = "ready" }, statusCode: 200)
+        : Results.Json(new { status = "unavailable", code = "dependenciesNotConfigured" }, statusCode: 503);
+});
 if (diagnosticMode) app.MapDiagnostics();
 app.Run();
 
