@@ -40,6 +40,10 @@ try {
 
 `inspect` reads schema/history under the migration advisory lock. `apply` accepts an empty database, or verifies and skips the already applied initial migration. Missing configuration, non-InnoDB defaults, unsupported servers, unknown tables, incomplete histories, and checksum mismatches fail closed. It never creates/drops a database, deletes data, or repairs history automatically. Both EF history and the SQL checksum journal must agree. Use this operator command rather than `dotnet ef database update`, which bypasses checksum journaling. The operator command currently supports the initial migration only; extend ordered version verification before adding a second release migration.
 
+Table inventory comparison follows the server's `@@lower_case_table_names`: exact case for mode 0, case-insensitive names for modes 1/2. Windows normally stores EF's history table as `__efmigrationshistory`; the inspector accepts that spelling in the appropriate mode. Migration IDs and checksum bytes still require exact matches. See [MySQL identifier rules](https://dev.mysql.com/doc/refman/8.0/en/identifier-case-sensitivity.html).
+
+Rebuild after code updates because the local helper uses `--no-build`. Inspection errors now identify table-set, EF-history, or checksum-journal failures; provider errors expose only their numeric MySQL code. Passwords, connection strings, provider messages, and exception traces are omitted. A naming-case rejection in an older build should be retried with the corrected inspector before any recovery procedure; keep the existing tables and histories.
+
 ## Generate and review future changes
 
 ```powershell

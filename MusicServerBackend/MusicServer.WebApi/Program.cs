@@ -23,10 +23,10 @@ if (args.Length > 0 && args[0] == "database")
         else Console.WriteLine(await new DatabaseMigrator().RunAsync(
             Environment.GetEnvironmentVariable("ConnectionStrings__MusicServerMigration"), args[1] == "apply"));
     }
-    catch (Exception)
+    catch (Exception exception)
     {
         // Provider exceptions can expose connection details or parameter values; keep credentials out of logs.
-        Console.Error.WriteLine("Database operation failed. Check the migration configuration and recovery instructions in docs/database-migrations.md. Credentials were not logged.");
+        Console.Error.WriteLine(MigrationDiagnostics.Describe(exception));
         Environment.ExitCode = 1;
     }
     return;

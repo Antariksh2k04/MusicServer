@@ -43,6 +43,8 @@ public sealed class DatabaseMigrator
             if (!string.Equals(Convert.ToString(await engine.ExecuteScalarAsync(cancellationToken)), "InnoDB", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Migration requires the InnoDB default storage engine.");
             var tables = new List<string>();
+            using var identifierMode = new MySqlCommand("SELECT @@lower_case_table_names", connection);
+            var lowerCaseTableNames = Convert.ToInt32(await identifierMode.ExecuteScalarAsync(cancellationToken));
             using (var inventory = new MySqlCommand("SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()", connection))
             await using (var reader = await inventory.ExecuteReaderAsync(cancellationToken))
                 while (await reader.ReadAsync(cancellationToken)) tables.Add(reader.GetString(0));
@@ -59,17 +61,16 @@ public sealed class DatabaseMigrator
                 return "Initial migration applied; EF history and SQL checksum recorded.";
             }
 
-            if (!tables.Order(StringComparer.Ordinal).SequenceEqual(Tables.Order(StringComparer.Ordinal), StringComparer.Ordinal))
-                throw IncompleteSchema();
+            VerifyTables(tables, lowerCaseTableNames);
             using (var history = new MySqlCommand("SELECT MigrationId FROM __EFMigrationsHistory ORDER BY MigrationId", connection))
             await using (var reader = await history.ExecuteReaderAsync(cancellationToken))
                 if (!await reader.ReadAsync(cancellationToken) || reader.GetString(0) != artifact.MigrationId || await reader.ReadAsync(cancellationToken))
-                    throw IncompleteSchema();
+                    throw new MigrationCheckException(MigrationCheckFailure.HistoryMismatch);
             using (var journal = new MySqlCommand("SELECT version, checksum FROM schema_migrations ORDER BY version", connection))
             await using (var reader = await journal.ExecuteReaderAsync(cancellationToken))
                 if (!await reader.ReadAsync(cancellationToken) || reader.GetInt32(0) != artifact.Version
                     || !CryptographicOperations.FixedTimeEquals((byte[])reader.GetValue(1), artifact.Checksum)
-                    || await reader.ReadAsync(cancellationToken)) throw IncompleteSchema();
+                    || await reader.ReadAsync(cancellationToken)) throw new MigrationCheckException(MigrationCheckFailure.ChecksumMismatch);
             return "Initial migration already applied; history and checksum match. No changes made.";
         }
         finally
@@ -85,6 +86,17 @@ public sealed class DatabaseMigrator
         }
     }
 
-    private static InvalidOperationException IncompleteSchema() => new(
-        "Database is unmanaged, partially migrated, or its history/checksum differs. No automatic repair was attempted. Follow docs/database-migrations.md.");
+    public static void VerifyTables(IReadOnlyCollection<string> tables, int lowerCaseTableNames)
+    {
+        // Modes 1 and 2 use case-insensitive lookup; mode 0 preserves case-sensitive Unix lookup.
+        // Do not apply identifier rules to identity proofs, migration IDs, or checksums.
+        var comparer = lowerCaseTableNames switch
+        {
+            0 => StringComparer.Ordinal,
+            1 or 2 => StringComparer.OrdinalIgnoreCase,
+            _ => throw new MigrationCheckException(MigrationCheckFailure.IdentifierModeUnsupported)
+        };
+        if (tables.Count != Tables.Length || !new HashSet<string>(tables, comparer).SetEquals(Tables))
+            throw new MigrationCheckException(MigrationCheckFailure.TablesMismatch);
+    }
 }

@@ -37,3 +37,13 @@ Task 3.1 remains unchecked. Run fresh/repeated migration and real uniqueness/FK/
 The owner approved reusing their existing local MySQL login for `music_server_db`, while the other application's database remains outside scope. `scripts/local-database.ps1` securely prompts locally, targets only the MusicServer database, passes the connection via process environment, inspects before applying, and restores configuration on success/failure. Its isolated PowerShell test checks delimiter-containing dummy passwords, argument secrecy, fixed target, sequencing, and restoration without accessing MySQL. No personal credentials are recorded here.
 
 GitHub inspection confirmed PR #4 merged into main, while PR #6 merged into the restructuring branch. The follow-up issue-#5 branch targets main and includes the previously reviewed schema plus this helper; the merged PR #6 alone does not establish main-branch availability or database acceptance.
+
+## Repeat-inspection correction (2026-10-13)
+
+The owner reported a successful empty-database migration followed by a failed repeat inspection, with no second migration requested. The old ordinal table comparison rejects a Windows-style inventory containing `__efmigrationshistory`. MySQL documents lowercase storage and case-insensitive lookup for `lower_case_table_names=1`, the Windows default; server setting/owner database contents have not been independently queried by the agent.
+
+The inspector now reads the server identifier mode and compares table names accordingly, retaining exact checks for migration IDs/checksums and rejection of missing/extra/duplicate tables. No generated migration, checksum artifact, schema, or database data was changed. Safe error reporting distinguishes failed inspection gates and emits only a numeric provider error code without exception text or credentials.
+
+Regression tests cover lowercase history names in modes 1/2, exact Unix names in mode 0, missing/extra/duplicate inventories, unknown modes, and redacted diagnostic output. The updated solution builds with zero warnings/errors; 100 backend tests passed and the separately configured real-MySQL test was skipped. Local helper contracts, offline artifact verification, strict OpenSpec validation, and diff whitespace checks passed.
+
+The owner reran `./scripts/local-database.ps1 -Action apply` with the corrected build and reported two matching `Initial migration already applied; history and checksum match. No changes made.` lines, one for the preliminary inspection and one for apply. This establishes owner-reported fresh application and successful repeat verification of the local database. Real constraint/recovery/restart checks and task 3.1 remain incomplete.
