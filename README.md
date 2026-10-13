@@ -27,6 +27,8 @@ Stop the frontend development server before `npm ci`; Windows can lock the nativ
 
 ## Local experiment
 
+Google owner provisioning for the product backend is prepared separately from diagnostics. See [owner provisioning](docs/owner-provisioning.md) for client configuration, verified ID-token input, and the operator-only command. Real Google configuration/provisioning and the app sign-in screens remain pending; the diagnostic operator key does not establish a Google owner.
+
 After restoring dependencies, start the backend from the root:
 
 ```powershell

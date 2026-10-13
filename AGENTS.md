@@ -33,6 +33,7 @@ Run from the root; see `README.md` for prerequisites:
 - `dotnet build MusicServerBackend/MusicServer.sln --no-restore`: compile the layered solution and tests.
 - `dotnet test MusicServerBackend/MusicServer.Tests/MusicServer.Tests.csproj --no-restore`: backend checks.
 - `dotnet run --project MusicServerBackend/MusicServer.WebApi --no-build --no-restore -- database verify-artifact`: offline SQL checksum check; see `docs/database-migrations.md` before explicit database operations. Never migrate automatically on API startup.
+- `dotnet run --project MusicServerBackend/MusicServer.WebApi --no-build --no-restore -- owner configuration`: validate operator Google configuration; `docs/owner-provisioning.md` governs the private helper and runtime boundary. No public owner-registration endpoint exists.
 - `npm --prefix MusicServerFrontend ci`: install locked frontend dependencies.
 - `npm --prefix MusicServerFrontend run build` / `npm --prefix MusicServerFrontend test`: typecheck/build or Vitest.
 - `node --test tests/scripts/prerequisites.test.cjs`: read-only prerequisite tool contracts.

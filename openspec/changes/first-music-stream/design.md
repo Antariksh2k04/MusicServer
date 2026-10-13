@@ -38,6 +38,8 @@ Keep cloud I/O behind one storage boundary for original-byte PUT, exact-key meta
 
 ### 2. Authentication and owner provisioning
 
+On 2026-10-13 the owner directed development to proceed while skipping the remaining database acceptance tests for now. Task 3.1 and issue #5 remain incomplete; the known schema and owner-reported fresh/repeated migration support continued implementation, without implying tested database constraints, interrupted-DDL recovery, restart durability, or deployment acceptance.
+
 Configure Google web client/origin and Android package/signing certificate, using the backend/web audience for native identity proof. Provision the sole canonical verified Google issuer/subject through an operator-controlled procedure before exposing the app; readiness fails without it. An email or first successful public login cannot seed ownership.
 
 `GET /auth/bootstrap` issues a bounded one-use nonce/challenge (default five-minute TTL). A single-instance in-memory challenge store is sufficient; restart invalidates pending login, not durable sessions. Browser challenge/exchange is bound to pre-login cookie, antiforgery proof, and expected Origin. Native Credential Manager obtains a nonce-bound Google ID token outside the WebView. The backend verifies signature, issuer, audience/client binding, expiry, and nonce, then matches the configured subject. No Google access token authorizes music API requests.
